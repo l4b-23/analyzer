@@ -25,7 +25,7 @@ pip3 install OTXv2 && pip3 install PyPDF2
 ### Adjust utils.py:
 - Create the key_file.json file. 
 - Set the correct path for the key_file.json file in the `KEY_FILE` constant of `utils.py`.
-    - Default: `/home/keys_file.json`
+    - Default: `/home/{USERNAME}/keys_file.json`
 
 ```json
 {
@@ -48,6 +48,7 @@ source .zshrc
 
 ### Run analyzer:
 ```bash
+# You can launch "analyzer" from anywhere, but the "analyzer_reports" directory will be created in it.
 cd $HOME/Documents
 analyzer
 ```
