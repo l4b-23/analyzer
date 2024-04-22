@@ -322,3 +322,16 @@ class Functions:
             print(Color.RED + "[!] TypeError occurred:", str(err) + Color.END)
         except Exception as err:
             print(Color.RED + "[!] Error with IPsum's blacklists: "+ err + Color.END)
+
+
+class Count:
+    """_summary_
+    Sends constants to summary class
+    """
+    @staticmethod
+    def count():
+        try:
+            return [WHOIS, VT_COUNT, DUGGY_COUNT, IPSUM_COUNT,CRIMINALIP_COUNTS, ABUSEIPDB_CONFIDENCE, OTX_COUNT]
+        except Exception:
+            print(Color.RED + "[!] Counting error" + Color.END)
+            exit()
