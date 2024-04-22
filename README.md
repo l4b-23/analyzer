@@ -30,11 +30,11 @@ pip3 install OTXv2 && pip3 install PyPDF2
 ```json
 {
     "api": {
-        "ip2location": "your API key",
+        "ip 2 location": "your API key",
         "virus total": "your API key", 
-        "abuseipdb": "your API key",
-        "otx": "your API key",
-        "criminal ip": "your API key"
+        "criminal ip": "your API key",
+        "abuse ip db": "your API key",
+        "alien vault": "your API key"
     }
 }     
 ```
