@@ -23,36 +23,44 @@ if __name__ == '__main__':
         print("[+] Directory create, report link is stored in: " + str(os.getcwd()) + '/analyzer_reports')
         
         print(Color.ORANGE + "[+] Checking public Whois sources" + Color.END)
-        print("--------------------------------------------------------------------------------------------------------")
-        print(Color.BLUE + "[+] Check ip 2 Location" + Color.END)
+        # print("--------------------------------------------------------------------------------------------------------")
+        # print(Color.BLUE + "[+] Check ip 2 Location" + Color.END)
         print("--------------------------------------------------------------------------------------------------------")
         Functions.ip2Location()
+
+        # print(Color.BLUE + "[+] Check ip info" + Color.END)
+        print("--------------------------------------------------------------------------------------------------------")
+        Functions.ipInfo()
             
         print(Color.ORANGE + "[+] Checking public CTI sources" + Color.END)
-        print("--------------------------------------------------------------------------------------------------------")
-        print(Color.BLUE + "[+] Virus Total" + Color.END)
+        # print("--------------------------------------------------------------------------------------------------------")
+        # print(Color.BLUE + "[+] Virus Total" + Color.END)
         print("--------------------------------------------------------------------------------------------------------")
         Functions.virusTotal()
 
-        print(Color.BLUE + "[+] Criminal IP" + Color.END)
+        # print(Color.BLUE + "[+] Criminal IP" + Color.END)
         print("--------------------------------------------------------------------------------------------------------")
         Functions.criminalIP()
         
-        print(Color.BLUE + "[+] Abuse IP DB" + Color.END)
+        # print(Color.BLUE + "[+] Abuse IP DB" + Color.END)
         print("--------------------------------------------------------------------------------------------------------")
         Functions.abuseIPDB()
         
-        print(Color.BLUE + "[+] Alien Vault / OTX" + Color.END)
+        # print(Color.BLUE + "[+] Alien Vault / OTX" + Color.END)
         print("--------------------------------------------------------------------------------------------------------")
         Functions.alienVault()
+
+        # print(Color.BLUE + "[+] Treatbook" + Color.END)
+        print("--------------------------------------------------------------------------------------------------------")
+        Functions.threatBook()
         
         print(Color.ORANGE + "[+] Checking public Blacklists" + Color.END)
-        print("--------------------------------------------------------------------------------------------------------")
-        print(Color.BLUE + "[+] Duggy Tuxy's list" + Color.END)
+        # print("--------------------------------------------------------------------------------------------------------")
+        # print(Color.BLUE + "[+] Duggy Tuxy's list" + Color.END)
         print("--------------------------------------------------------------------------------------------------------")
         Functions.duggyTuxy()
 
-        print(Color.BLUE + "[+] IPsum's blacklists" + Color.END)
+        # print(Color.BLUE + "[+] IPsum's blacklists" + Color.END)
         print("--------------------------------------------------------------------------------------------------------")
         Functions.ipsum()
 

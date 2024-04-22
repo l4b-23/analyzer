@@ -12,6 +12,7 @@ from OTXv2 import OTXv2
 from OTXv2 import IndicatorTypes
 from bs4 import BeautifulSoup as bs
 import urllib.request
+import ipinfo
 from utils import *
 
 
@@ -29,12 +30,9 @@ class Functions:
     def ip2Location():
         """_summary_
         Check ip2location and return the responses in a dedicated file in the reports directory.
-            whois cmd sup:
-                or
-                os.system("whois " + IP + " | grep -A15 netname | grep -E 'NetName|Organization|Country|RegDate' | sed 's/^\ *//g' | tr '[A-Z]' '[a-z]' | sort -u > " + f"analyzer_reports/{DOMAIN_NAME_TO_IP}_whois.txt")
         """
         try:
-            print(Color.GREEN + "[+] ip 2 location report: " + Color.END)
+            print(Color.BLUE + "[+] IP 2 location report: " + Color.END)
             global WHOIS
 
             configFile = Config_file(KEY_FILE)
@@ -52,6 +50,41 @@ class Functions:
             print(Color.RED + "[!] Error with IP 2 Location: " + str(err) + Color.END)
 
 
+    @staticmethod
+    def ipInfo():
+        """_summary_
+        Check ipinfo and return the responses in a dedicated file in the reports directory.
+        """
+        try:
+            print(Color.BLUE + "[+] IP info report: " + Color.END)
+            global WHOIS_IPINFO
+
+            configFile = Config_file(KEY_FILE)
+            ipInfoKey = configFile.getIPInfo()
+
+            handler = ipinfo.getHandler(access_token=ipInfoKey)
+            response = handler.getDetails(DOMAIN_NAME_TO_IP)
+
+            if DOMAIN_NAME_TO_IP:
+                print('\t- Organisation:', response.org,
+                        '\n\t- Postal code:', response.postal,
+                        '\n\t- City:', response.city,
+                        '\n\t- Region:', response.region,
+                        '\n\t- Continent:', response.continent['name'],
+                        '\n\t- Continent code:', response.continent['code'],
+                        '\n\t- Is European:', response.isEU,
+                        '\n\t- GPS coordinates:', response.loc,
+                        '\n\t- Time zone:', response.timezone)
+
+                WHOIS_IPINFO = response.country
+            else:
+                print(Color.RED + "[!] no valid IP address found" + Color.END)
+                pass
+        
+        except Exception as err:
+            print(Color.RED + "[!] Error with IP info: " + str(err) + Color.END)     
+
+
     # [+] Checking public CTI sources
     @staticmethod
     def virusTotal():
@@ -59,7 +92,7 @@ class Functions:
         Check VT and return the responses in a dedicated file in the reports directory.
         """
         try:
-            print(Color.GREEN + "[+] VirusTotal report:" + Color.END)
+            print(Color.BLUE + "[+] VirusTotal report:" + Color.END)
             global VT_COUNT
             
             configFile = Config_file(KEY_FILE)
@@ -86,7 +119,7 @@ class Functions:
                                 stringToDisplay = stringToDisplay.replace(char, "")
                             print("\t- ", key, ":", stringToDisplay)
 
-                    print(Color.GREEN + "[+] Number of detections: ", str(count) + Color.END)
+                    print(Color.BLUE + "[+] Number of detections: ", str(count) + Color.END)
                     VT_COUNT = [count, response['total']]
 
         except Exception as err:
@@ -95,8 +128,11 @@ class Functions:
 
     @staticmethod
     def criminalIP():
+        """_summary_
+        Check CriminalIP and return the responses in a dedicated file in the reports directory.
+        """
         try:
-            print(Color.GREEN + "[+] Criminal IP report:" + Color.END)
+            print(Color.BLUE + "[+] Criminal IP report:" + Color.END)
             global CRIMINALIP_COUNTS
 
             configFile = Config_file(KEY_FILE)
@@ -159,7 +195,8 @@ class Functions:
                 count == count
                 print(DOMAIN_NAME_TO_IP, 'Not found in CriminalIP.io')
             
-            CRIMINALIP_COUNTS = [count, response['current_opened_port']['count'], response['vulnerability']['count'], response['ip_category']['count']]
+            CRIMINALIP_COUNTS = [count, response['current_opened_port']['count'], response['vulnerability']['count'], 
+                                 response['ip_category']['count']]
         
         except KeyError as err:
             print(Color.RED + "[!] KeyError occured: ", str(err) + Color.END)
@@ -171,8 +208,11 @@ class Functions:
 
     @staticmethod
     def abuseIPDB():
+        """_summary_
+        Check AbuseIPDB and return the responses in a dedicated file in the reports directory.
+        """
         try:
-            print(Color.GREEN + "[+] AbuseIPDB report:" + Color.END)
+            print(Color.BLUE + "[+] AbuseIPDB report:" + Color.END)
             global ABUSEIPDB_CONFIDENCE
 
             configFile = Config_file(KEY_FILE)
@@ -200,15 +240,18 @@ class Functions:
 
     @staticmethod
     def alienVault():
+        """_summary_
+        Check AlienVault and return the responses in a dedicated file in the reports directory.
+        """
         try:
-            print(Color.GREEN + "[+] OTX report:" + Color.END)
+            print(Color.BLUE + "[+] OTX report:" + Color.END)
             global OTX_COUNT
 
             configFile = Config_file(KEY_FILE)
             alienVaultKey = configFile.getAlienVault()
 
-            otx = OTXv2(alienVaultKey)
-            response = otx.get_indicator_details_full(IndicatorTypes.IPv4, Check_INPUT.checkInput())
+            handler = OTXv2(alienVaultKey)
+            response = handler.get_indicator_details_full(IndicatorTypes.IPv4, Check_INPUT.checkInput())
 
             print("[+] Reputation:", response['general']['reputation'],
                     "\n[+] Count of pulses reported:", response['general']['pulse_info']['count'])
@@ -244,6 +287,52 @@ class Functions:
             print(Color.RED + "[!] Error with OTX: probably a wrong input value" + Color.END)
             OTX_COUNT = 0
 
+    @staticmethod
+    def threatBook():
+        """_summary_
+        Check Threatbook and return the responses in a dedicated file in the reports directory.
+        """
+        try:
+            print(Color.BLUE + "[+] Threatbook report:" + Color.END)
+            global THREATBOOK
+            
+            configFile = Config_file(KEY_FILE)
+            response = configFile.getThreatBook(DOMAIN_NAME_TO_IP)
+            count = 0
+            CHAR = string.ascii_lowercase
+            executed = False
+            if any(char in DOMAIN for char in CHAR):
+                executed = True
+                print('\t- ASN number:', response['data']['asn']['number'],
+                        '\n\t- ASN rank:', response['data']['asn']['rank'],
+                        '\n\t- Ports:', response['data']['ports'],
+                        '\n\t- First seen:', response['data']['summary']['first_seen'],
+                        '\n\t- Last seen:', response['data']['summary']['last_seen'],
+                        '\n\t- Judgment:', response['data']['summary']['judgments'],
+                        '\n\t- Is whitelited:', response['data']['summary']['whitelist'],
+                        f'\n\t- Link: https://threatbook.io/domain/{DOMAIN}')
+            else:
+                executed = False
+                print('\t- ASN number:', response['data']['asn']['number'],
+                        '\n\t- ASN rank:', response['data']['asn']['rank'],
+                        '\n\t- Ports:', response['data']['ports'],
+                        '\n\t- First seen:', response['data']['summary']['first_seen'],
+                        '\n\t- Last seen:', response['data']['summary']['last_seen'],
+                        '\n\t- Judgment:', response['data']['summary']['judgments'],
+                        '\n\t- Is whitelited:', response['data']['summary']['whitelist'],
+                        f'\n\t- Link: https://threatbook.io/ip/{DOMAIN_NAME_TO_IP}')
+            
+            if response['data']['summary']['judgments']:
+                THREATBOOK = [count+1, str(response['data']['summary']['judgments'])]
+                print(THREATBOOK)
+            else:
+                THREATBOOK = [count, str(response['data']['summary']['judgments'])]
+                print(THREATBOOK)
+
+        except Exception:
+            print(Color.RED + "[!] Error with threatbook" + Color.END)
+
+
     # [+] Checking public Blacklists
     @staticmethod
     def duggyTuxy():
@@ -251,7 +340,7 @@ class Functions:
         These are the IP addresses of the most active Botnets/Zombies/Scanners in European Cyber Space
         """
         try:
-            print(Color.GREEN + "[+] Duggy Tuxy report:" + Color.END)
+            print(Color.BLUE + "[+] Duggy Tuxy report:" + Color.END)
             global DUGGY_COUNT
 
             configURL = Config_urls()
@@ -282,10 +371,11 @@ class Functions:
     def ipsum():
         """
         IPsum is a threat intelligence feed based on 30+ different publicly available lists of suspicious and/or malicious IP addresses like:
-            abuseipdb, alienvault, atmos, badips, bitcoinnodes, blocklist, botscout, cobaltstrike, malwaredomains, proxylists, ransomwaretrackerurl, talosintelligence, torproject, etc.
+            abuseipdb, alienvault, atmos, badips, bitcoinnodes, blocklist, botscout, cobaltstrike, malwaredomains, proxylists, 
+            ransomwaretrackerurl, talosintelligence, torproject, etc.
         """
         try:
-            print(Color.GREEN + "[+] IPsum report:" + Color.END)
+            print(Color.BLUE + "[+] IPsum report:" + Color.END)
             global IPSUM_COUNT
 
             configURL = Config_urls()
@@ -331,7 +421,7 @@ class Count:
     @staticmethod
     def count():
         try:
-            return [WHOIS, VT_COUNT, DUGGY_COUNT, IPSUM_COUNT,CRIMINALIP_COUNTS, ABUSEIPDB_CONFIDENCE, OTX_COUNT]
+            return [WHOIS, VT_COUNT, DUGGY_COUNT, IPSUM_COUNT,CRIMINALIP_COUNTS, ABUSEIPDB_CONFIDENCE, OTX_COUNT, THREATBOOK]
         except Exception:
             print(Color.RED + "[!] Counting error" + Color.END)
             exit()

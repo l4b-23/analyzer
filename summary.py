@@ -30,7 +30,9 @@ class Summary:
             abReports = Count.count()[5][0]
             abCnfidence = Count.count()[5][1]
             ot = Count.count()[6]
-
+            tb = Count.count()[7]
+            tbJudgment = Count.count()[7][1]
+            
             agressivity = 0
             malicious = 0
             reported = 0
@@ -100,7 +102,7 @@ class Summary:
                 print('[!] Malicious:', malicious)
             print("--------------------------------------------------------------------------------------------------------")
             
-            if abReports == 0:  # integrate otx to adjust the result
+            if abReports == 0:  # Integrate otx to adjust the result
                 print("[+] Not found on AbuseIPDB")
             else:
                 print("[!] Reported on AbuseIPDB",
@@ -122,8 +124,19 @@ class Summary:
             else:
                 print("[!] Count of pulses reported on OTX:",ot)
             print("--------------------------------------------------------------------------------------------------------")
+
+            if tb == 0:
+                print("[+] No judgment reported on Threatbook")
+            else:
+                print("[!] Judgment reported on Threatbook:", tbJudgment)
+            print("--------------------------------------------------------------------------------------------------------")
             
-            note = (agressivity+malicious+reported)/3
+
+            if tb == 0:
+                note = (agressivity+malicious+reported)/3
+            else:
+                note = (agressivity+malicious+reported+5)/3
+
             print("[!] General note:", round(note, 2))
             if round(note, 2) <= 2:
                 print(Color.GREEN + '[!] Low IP' + Color.END)
@@ -135,4 +148,4 @@ class Summary:
                 print(Color.RED + '[!] Critical IP' + Color.END)
         
         except Exception as err:
-            print('error:', err)
+            print(Color.RED + 'Error:', err + Color.END)

@@ -32,12 +32,7 @@ try:
     TODAY = time.strftime("%m-%d-%Y")
     INPUT = input("Enter IP Address or Domain name: ").split()
     DOMAIN = str(INPUT[0])
-    CTI_SOURCES = ["ip 2 location",
-                   "virus total",
-                   "criminal ip",
-                   "abuse ip db",
-                   "alien vault",
-                   ]
+
 except Exception:
     print(Color.RED + "[!] Domain not found" + Color.END)
 
@@ -101,7 +96,7 @@ class Check_INPUT:
                         print("[+] Domain used: " + DOMAIN)
                         if DOMAIN_NAME_TO_IP:
                             print("[+] IP associated with the domain and used: " + DOMAIN_NAME_TO_IP)
-                            DOMAIN_NAME_TO_IP = DOMAIN_NAME_TO_IP
+                            # DOMAIN_NAME_TO_IP = DOMAIN_NAME_TO_IP
                             return DOMAIN_NAME_TO_IP
                         else:
                             print("[+] Domain used: " + DOMAIN +" but couldn't be associated with an IP")
@@ -116,16 +111,22 @@ class Config_file:
         with open(key_file, "r") as file:
             configFile = json.load(file)
             self.ip2location_key = configFile['api'].get('ip 2 location')
+            self.ipinfo_key = configFile['api'].get('ip info')
             self.virus_total_key = {'apikey': configFile['api']['virus total'], 'resource': DOMAIN}
             self.criminal_ip_key = configFile['api'].get('criminal ip')
             self.abuse_ip_db_key = configFile['api'].get('abuse ip db')
             self.alien_vault_key = configFile['api'].get('alien vault')
+            self.threatbook_key = configFile['api'].get('threatbook')
 
 
     def getIP2Location(self, domain_name_to_ip):
         url = (f"https://api.ip2location.io/?key={self.ip2location_key}&ip={domain_name_to_ip}&format=json")
         response = requests.request("GET", url)
         return response.json()
+    
+
+    def getIPInfo(self):
+        return self.ipinfo_key
     
 
     def getVirusTotal(self, domain_name_to_ip):
@@ -150,9 +151,9 @@ class Config_file:
         return response.json()
     
 
-    def getAbuseIPDB(self, domaine_name_to_ip):
+    def getAbuseIPDB(self, domain_name_to_ip):
         url = "https://api.abuseipdb.com/api/v2/check"
-        querystring = {'ipAddress': domaine_name_to_ip, 'maxAgeInDays': '90'}
+        querystring = {'ipAddress': domain_name_to_ip, 'maxAgeInDays': '90'}
         key = {'Accept': 'applications/json', 'key': self.abuse_ip_db_key}
         response = requests.request(method='GET', url=url, headers=key, params=querystring)
         if response.status_code == 200:
@@ -161,6 +162,13 @@ class Config_file:
 
     def getAlienVault(self):
         return self.alien_vault_key
+    
+
+    def getThreatBook(self, domain_name_to_ip):
+        url = (f"https://api.threatbook.io/v1/community/ip?apikey={self.threatbook_key}&resource={domain_name_to_ip}")
+        key = {"accept": "application/json"}
+        response = requests.get(url, headers=key)
+        return response.json()
 
 
 # URLs builder

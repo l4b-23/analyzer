@@ -6,20 +6,24 @@
 
 
 ## In run:
-- [ip2location](https://www.ip2location.io/)
-- [VirusTotal](https://www.virustotal.com/gui/home/search)
-- [AbuseIPDB](https://www.abuseipdb.com/)
-- [OTX/AlienVault](https://otx.alienvault.com/)
-- [CriminalIP](https://www.criminalip.io/en)
+- [ip 2 location](https://www.ip2location.io/)
+- [ip Info](https://ipinfo.io/)
+- [Virus Total](https://www.virustotal.com/gui/home/search)
+- [Criminal IP](https://www.criminalip.io/en)
+- [Abuse IP DB](https://www.abuseipdb.com/)
+- [OTX / AlienVault](https://otx.alienvault.com/)
+- [ThreatBook](https://threatbook.io/)
 - [Duggy Tuxy blacklist](https://github.com/duggytuxy/malicious_ip_addresses)
-- [IPsum](https://github.com/stamparm/ipsum)
+- [IPsum blacklists](https://github.com/stamparm/ipsum)
 
 
 ## Setup
 ### Requirements:
-- OTXv2 and PyPDF2:
+- OTXv2, PyPDF2 & ipinfo:
 ```bash
-pip3 install OTXv2 && pip3 install PyPDF2
+pip3 install OTXv2
+pip3 install PyPDF2
+pip3 install ipinfo
 ```
 
 ### Adjust utils.py:
@@ -31,10 +35,12 @@ pip3 install OTXv2 && pip3 install PyPDF2
 {
     "api": {
         "ip 2 location": "your API key",
+        "ip info": "your API key",
         "virus total": "your API key", 
         "criminal ip": "your API key",
         "abuse ip db": "your API key",
-        "alien vault": "your API key"
+        "alien vault": "your API key",
+        "threatbook": "your API key"
     }
 }     
 ```
