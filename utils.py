@@ -11,8 +11,6 @@ from os.path import exists
 import re
 import string
 import requests
-from OTXv2 import OTXv2
-from OTXv2 import IndicatorTypes
 import json
 import PyPDF2
 
@@ -29,13 +27,11 @@ class Color:
 # Constants:
 try:
     USERNAME = os.getenv("USER")
-    #print(f"The value of the $USER environment variable is : {USERNAME}")
     KEY_FILE = f"/home/{USERNAME}/keys_file.json"
     CONFIG_FILE = open(KEY_FILE, "r")
     TODAY = time.strftime("%m-%d-%Y")
     INPUT = input("Enter IP Address or Domain name: ").split()
     DOMAIN = str(INPUT[0])
-    DOMAIN_NAME_TO_IP = socket.gethostbyname(DOMAIN)
     CTI_SOURCES = ["ip 2 location",
                    "virus total",
                    "criminal ip",
@@ -70,7 +66,7 @@ class Api:
 class Directory:
     @staticmethod
     def getReportDierectory():
-        """
+        """_summary_
         Create a folder in the current directory to store results 
         """
         try:
@@ -83,7 +79,7 @@ class Directory:
 class Check_INPUT:
     @staticmethod
     def checkInput():
-        """
+        """_summary_
         Check whether the input is a domain or an IP address.
         Returns the IP address of the domain or retains the IP address entered in "input".
         """
@@ -114,16 +110,17 @@ class Check_INPUT:
                             print(Color.RED + "[!] Invalid input: " + INPUT[0] + Color.END)
 
 
-
+# API keys builder 
 class Config_file:
     def __init__(self, key_file):
         with open(key_file, "r") as file:
             configFile = json.load(file)
             self.ip2location_key = configFile['api'].get('ip 2 location')
-            self.virus_total_key = {'apikey': configFile['api']['virus total'], 'resource': INPUT[0]}
+            self.virus_total_key = {'apikey': configFile['api']['virus total'], 'resource': DOMAIN}
             self.criminal_ip_key = configFile['api'].get('criminal ip')
             self.abuse_ip_db_key = configFile['api'].get('abuse ip db')
             self.alien_vault_key = configFile['api'].get('alien vault')
+
 
     def getIP2Location(self, domain_name_to_ip):
         url = (f"https://api.ip2location.io/?key={self.ip2location_key}&ip={domain_name_to_ip}&format=json")
@@ -131,7 +128,7 @@ class Config_file:
         return response.json()
     
 
-    def virusTotalReport(self, domain_name_to_ip):
+    def getVirusTotal(self, domain_name_to_ip):
         url = 'https://www.virustotal.com/vtapi/v2/url/report'
         key = {'resource': domain_name_to_ip}  # Initialise the key with only the resource parameter
         
@@ -143,3 +140,39 @@ class Config_file:
 
         response = requests.get(url, params=key)
         return response.json()
+    
+
+    def getCtiminalIP(self, domain_name_to_ip):
+        url = (f"https://api.criminalip.io/v1/feature/ip/malicious-info?ip={domain_name_to_ip}")
+        payload = {}
+        key = {'x-api-key': self.criminal_ip_key}  # Utilisez self.criminal_ip_key pour accéder à la clé API
+        response = requests.request("GET", url, headers=key, data=payload)
+        return response.json()
+    
+
+    def getAbuseIPDB(self, domaine_name_to_ip):
+        url = "https://api.abuseipdb.com/api/v2/check"
+        querystring = {'ipAddress': domaine_name_to_ip, 'maxAgeInDays': '90'}
+        key = {'Accept': 'applications/json', 'key': self.abuse_ip_db_key}
+        response = requests.request(method='GET', url=url, headers=key, params=querystring)
+        if response.status_code == 200:
+            return response.json()
+    
+
+    def getAlienVault(self):
+        return self.alien_vault_key
+
+
+# URLs builder
+class Config_urls:
+    def __init__(self):
+        self.duggy_tuxy_url = "https://raw.githubusercontent.com/duggytuxy/malicious_ip_addresses/main/botnets_zombies_scanner_spam_ips.txt"
+        self.ipsum_url = "https://raw.githubusercontent.com/stamparm/ipsum/master/ipsum.txt"
+
+
+    def getDuggyTuxy(self):
+        return self.duggy_tuxy_url
+    
+
+    def getIpsum(self):
+        return self.ipsum_url
