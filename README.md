@@ -3,6 +3,7 @@
 
 > ## **Discovers an IP and/or domain from the following web applications and returns a reputation score.**
 > #### **V1, Started in July 23 / based on the example of [Sooty](https://github.com/TheresAFewConors/Sooty/blob/master/Sooty.py)**
+> #### **Here is the V2, Started in April 24**
 
 
 ## In run:
@@ -13,17 +14,26 @@
 - [Abuse IP DB](https://www.abuseipdb.com/)
 - [OTX / AlienVault](https://otx.alienvault.com/)
 - [ThreatBook](https://threatbook.io/)
+- [GreyNoise](https://www.greynoise.io/)
 - [Duggy Tuxy blacklist](https://github.com/duggytuxy/malicious_ip_addresses)
 - [IPsum blacklists](https://github.com/stamparm/ipsum)
+- [Redflag Domains](https://red.flag.domains/)
+- **checks internal IOC in a csv file**
+
+### CSV file format tested
+```csv
+domain,entry date,expired,category
+146.196.38.50,02/04/2024,TRUE,malicious
+216.151.191.12,05/04/2024,FALSE,unknown
+lemespaceclent.fr,08/04/2024,FALSE,benign
+```
 
 
 ## Setup
 ### Requirements:
-- OTXv2, PyPDF2 & ipinfo:
+- beautifulsoup4, requests, OTXv2, PyPDF2, ipinfo, netlas:
 ```bash
-pip3 install OTXv2
-pip3 install PyPDF2
-pip3 install ipinfo
+pip3 install -r requirements.txt
 ```
 
 ### Adjust utils.py:
@@ -40,7 +50,8 @@ pip3 install ipinfo
         "criminal ip": "your API key",
         "abuse ip db": "your API key",
         "alien vault": "your API key",
-        "threatbook": "your API key"
+        "threatbook": "your API key",
+        "greynoise": "your API key"
     }
 }     
 ```

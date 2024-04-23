@@ -1,0 +1,26 @@
+# Libraries needed to run the Analyzer program
+
+# Please note that your IDE may need to access your local libraries: 
+# for VSCode: 
+# - Access parameters => Pylance => 'Python ' Analysis: Extra Paths' 
+# - Add your absolute path ~/.local (example): /home/$USER/.local/lib/python3.11/site-packages 
+
+
+beautifulsoup4
+requests
+OTXv2
+PyPDF2
+ipinfo
+netlas
+
+
+# Pay attention to "netlas" depending on your operating system:
+    # ERROR: pip's dependency resolver does not currently take into account all the packages that are installed. This behaviour is the source of the following dependency conflicts.
+    # crackmapexec 5.4.0 requires aioconsole<0.4.0,>=0.3.3, but you have aioconsole 0.7.0 which is incompatible.
+    # crackmapexec 5.4.0 requires masky<0.2.0,>=0.1.1, but you have masky 0.2.0 which is incompatible.
+    # crackmapexec 5.4.0 requires minikerberos==0.3.3, but you have minikerberos 0.4.4 which is incompatible.
+    # crackmapexec 5.4.0 requires neo4j<5.0.0,>=4.1.1, but you have neo4j 5.2.dev0 which is incompatible.
+    # crackmapexec 5.4.0 requires pypsrp<0.8.0,>=0.7.0, but you have pypsrp 0.8.1 which is incompatible.
+    # crackmapexec 5.4.0 requires termcolor<2.0.0,>=1.1.0, but you have termcolor 2.4.0 which is incompatible.
+    # crackmapexec 5.4.0 requires xmltodict<0.13.0,>=0.12.0, but you have xmltodict 0.13.0 which is incompatible.
+    # Successfully installed netlas-0.4.1 orjson-3.9.0 tqdm-4.66.2

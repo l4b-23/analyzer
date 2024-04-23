@@ -1,6 +1,7 @@
 # coding: utf-8
 """_summary_
 V1, July 23, based on the example of Sooty
+V2, April 24
 work utilities
 """
 
@@ -112,11 +113,13 @@ class Config_file:
             configFile = json.load(file)
             self.ip2location_key = configFile['api'].get('ip 2 location')
             self.ipinfo_key = configFile['api'].get('ip info')
+            self.netlas_key = configFile['api'].get('netlas')
             self.virus_total_key = {'apikey': configFile['api']['virus total'], 'resource': DOMAIN}
             self.criminal_ip_key = configFile['api'].get('criminal ip')
             self.abuse_ip_db_key = configFile['api'].get('abuse ip db')
             self.alien_vault_key = configFile['api'].get('alien vault')
             self.threatbook_key = configFile['api'].get('threatbook')
+            self.greynoise_key = configFile['api'].get('greynoise')
 
 
     def getIP2Location(self, domain_name_to_ip):
@@ -127,6 +130,13 @@ class Config_file:
 
     def getIPInfo(self):
         return self.ipinfo_key
+    
+
+    # def getNetlas(self, domain_name_to_ip):
+    #     url = f"https://app.netlas.io/api/host/{domain_name_to_ip}/?fields=&source_type=include"
+    #     headers = {'accept': 'application/json', 'X-API-Key': self.netlas_key}
+    #     response = requests.get(url, headers=headers)
+    #     return response.json()
     
 
     def getVirusTotal(self, domain_name_to_ip):
@@ -169,14 +179,22 @@ class Config_file:
         key = {"accept": "application/json"}
         response = requests.get(url, headers=key)
         return response.json()
+    
 
+    def getGreyNoise(self, domain_name_to_ip):
+        url = f"https://api.greynoise.io/v3/community/{domain_name_to_ip}"
+        key = {"accept": "application/json","key": self.greynoise_key}
+        response = requests.get(url, headers=key)
+        return response.json()
+            
 
 # URLs builder
 class Config_urls:
     def __init__(self):
         self.duggy_tuxy_url = "https://raw.githubusercontent.com/duggytuxy/malicious_ip_addresses/main/botnets_zombies_scanner_spam_ips.txt"
         self.ipsum_url = "https://raw.githubusercontent.com/stamparm/ipsum/master/ipsum.txt"
-
+        self.redflagDomains_url = "https://dl.red.flag.domains/red.flag.domains.txt"
+        self.tlp_url = ""
 
     def getDuggyTuxy(self):
         return self.duggy_tuxy_url
@@ -184,3 +202,11 @@ class Config_urls:
 
     def getIpsum(self):
         return self.ipsum_url
+    
+
+    def getRedflagDomains(self):
+        return self.redflagDomains_url
+    
+
+    def getTLP(self):
+        return self.tlp_url

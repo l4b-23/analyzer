@@ -1,6 +1,7 @@
 # coding: utf-8
 """_summary_
 V1, July 23, based on the example of Sooty
+V2, April 24
 Principal scan functions
 """
 
@@ -13,14 +14,15 @@ from OTXv2 import IndicatorTypes
 from bs4 import BeautifulSoup as bs
 import urllib.request
 import ipinfo
+import csv
 from utils import *
+# import netlas
 
 
 # Returns the variable "DOMAIN_NAME_TO_IP", which can be used in the following functions
 print(Color.ORANGE + "[+] Check whether the input is a domain or an IP address" + Color.END)
 print("--------------------------------------------------------------------------------------------------------")
 DOMAIN_NAME_TO_IP = Check_INPUT.checkInput()
-print("--------------------------------------------------------------------------------------------------------")
 
 
 # Analysis functions:
@@ -32,7 +34,6 @@ class Functions:
         Check ip2location and return the responses in a dedicated file in the reports directory.
         """
         try:
-            print(Color.BLUE + "[+] IP 2 location report: " + Color.END)
             global WHOIS
 
             configFile = Config_file(KEY_FILE)
@@ -56,7 +57,6 @@ class Functions:
         Check ipinfo and return the responses in a dedicated file in the reports directory.
         """
         try:
-            print(Color.BLUE + "[+] IP info report: " + Color.END)
             global WHOIS_IPINFO
 
             configFile = Config_file(KEY_FILE)
@@ -67,7 +67,7 @@ class Functions:
 
             if DOMAIN_NAME_TO_IP:
                 print('\t- Organisation:', response.org,
-                        '\n\t- Postal code:', response.postal,
+                        # '\n\t- Postal code:', response.postal,
                         '\n\t- City:', response.city,
                         '\n\t- Region:', response.region,
                         '\n\t- Continent:', response.continent['name'],
@@ -85,6 +85,25 @@ class Functions:
             print(Color.RED + "[!] Error with IP info: " + str(err) + Color.END)     
 
 
+    # @staticmethod
+    # def netlas():
+    #     """_summary_
+    #     Check netlas and return the responses in a dedicated file in the reports directory.
+    #     Whois is more complete, but has certain restrictions on API use https://app.netlas.io/.
+    #     Use of the Netlas library must be confirmed.
+    #     """
+    #     try:
+    #         global NETLAS
+
+    #         configFile = Config_file(KEY_FILE)
+    #         response = configFile.getNetlas(DOMAIN_NAME_TO_IP)
+
+    #         pprint.pprint(response)
+
+    #     except Exception as err:
+    #         print(err)
+
+
     # [+] Checking public CTI sources
     @staticmethod
     def virusTotal():
@@ -92,7 +111,6 @@ class Functions:
         Check VT and return the responses in a dedicated file in the reports directory.
         """
         try:
-            print(Color.BLUE + "[+] VirusTotal report:" + Color.END)
             global VT_COUNT
             
             configFile = Config_file(KEY_FILE)
@@ -132,7 +150,6 @@ class Functions:
         Check CriminalIP and return the responses in a dedicated file in the reports directory.
         """
         try:
-            print(Color.BLUE + "[+] Criminal IP report:" + Color.END)
             global CRIMINALIP_COUNTS
 
             configFile = Config_file(KEY_FILE)
@@ -212,7 +229,6 @@ class Functions:
         Check AbuseIPDB and return the responses in a dedicated file in the reports directory.
         """
         try:
-            print(Color.BLUE + "[+] AbuseIPDB report:" + Color.END)
             global ABUSEIPDB_CONFIDENCE
 
             configFile = Config_file(KEY_FILE)
@@ -244,7 +260,6 @@ class Functions:
         Check AlienVault and return the responses in a dedicated file in the reports directory.
         """
         try:
-            print(Color.BLUE + "[+] OTX report:" + Color.END)
             global OTX_COUNT
 
             configFile = Config_file(KEY_FILE)
@@ -293,7 +308,6 @@ class Functions:
         Check Threatbook and return the responses in a dedicated file in the reports directory.
         """
         try:
-            print(Color.BLUE + "[+] Threatbook report:" + Color.END)
             global THREATBOOK
             
             configFile = Config_file(KEY_FILE)
@@ -329,18 +343,68 @@ class Functions:
                 THREATBOOK = [count, str(response['data']['summary']['judgments'])]
                 print(THREATBOOK)
 
+        except KeyError as err:
+            print(Color.RED + "[!] KeyError occured: ", str(err) + Color.END)
+        except TypeError as err:
+            print(Color.RED + "[!] TypeError occurred:", str(err) + Color.END)
         except Exception:
             print(Color.RED + "[!] Error with threatbook" + Color.END)
+
+    
+    @staticmethod
+    def greyNoise():
+        """_summary_
+        Check Greynoise and return the responses in a dedicated file in the reports directory.
+        """
+        try:
+            global GREYNOISE
+            
+            configFile = Config_file(KEY_FILE)
+            response = configFile.getGreyNoise(DOMAIN_NAME_TO_IP)
+            count = 0
+            riot = False  
+            message = "IP not observed scanning the internet or contained in RIOT data set."
+            print(response)
+            if message in response:
+                print('\n\t- Present in RIOR DB:', response['riot'],
+                        '\n\t- Scanning internet in the last 90 days:', response['noise'])
+                count = count
+            else:
+                print('\t- Classification:', response['classification'],
+                            '\n\t- Scanning internet in the last 90 days:', response['noise'],
+                            '\n\t- Present in RIOT DB:', response['riot'],
+                            '\n\t- Last seen:', response['last_seen'],
+                            '\n\t- Link:',response['link'])
+            
+            if 'benign' in response['classification']:
+                    count = count+1
+            
+            if 'malicious' in response['classification']:
+                    count = count+2
+
+            if response['riot'] != True:
+                    riot = riot
+            else:
+                riot = True
+
+            GREYNOISE = [count, riot]
+
+        except KeyError as err:
+            print(Color.RED + "[!] KeyError occured: ", str(err) + Color.END)
+        except TypeError as err:
+            print(Color.RED + "[!] TypeError occurred:", str(err) + Color.END)
+        except Exception:
+            print(Color.RED + "[!] Error with greynoise" + Color.END)
+            
 
 
     # [+] Checking public Blacklists
     @staticmethod
     def duggyTuxy():
-        """
+        """_summary_
         These are the IP addresses of the most active Botnets/Zombies/Scanners in European Cyber Space
         """
         try:
-            print(Color.BLUE + "[+] Duggy Tuxy report:" + Color.END)
             global DUGGY_COUNT
 
             configURL = Config_urls()
@@ -364,18 +428,17 @@ class Functions:
             print(Color.RED + "[!] KeyError occured: ", str(err) + Color.END)
         except TypeError as err:
             print(Color.RED + "[!] TypeError occurred:", str(err) + Color.END)
-        except Exception as err:
-            print(Color.RED + "[!] Error with Duggy Tuxy's list: " + err + Color.END)
+        except Exception:
+            print(Color.RED + "[!] Error with Duggy Tuxy's list: "+ Color.END)
 
     @staticmethod
     def ipsum():
-        """
+        """_summary_
         IPsum is a threat intelligence feed based on 30+ different publicly available lists of suspicious and/or malicious IP addresses like:
             abuseipdb, alienvault, atmos, badips, bitcoinnodes, blocklist, botscout, cobaltstrike, malwaredomains, proxylists, 
             ransomwaretrackerurl, talosintelligence, torproject, etc.
         """
         try:
-            print(Color.BLUE + "[+] IPsum report:" + Color.END)
             global IPSUM_COUNT
 
             configURL = Config_urls()
@@ -410,8 +473,115 @@ class Functions:
             print(Color.RED + "[!] KeyError occured: ", str(err) + Color.END)
         except TypeError as err:
             print(Color.RED + "[!] TypeError occurred:", str(err) + Color.END)
-        except Exception as err:
-            print(Color.RED + "[!] Error with IPsum's blacklists: "+ err + Color.END)
+        except Exception:
+            print(Color.RED + "[!] Error with IPsum's blacklists: " + Color.END)
+    
+
+    @staticmethod
+    def redflagDomains():
+        """_summary_
+        Redflag Domains are lists of very recently registered probably malicious domain names in french TLDs.
+        """
+        try:
+            global REDFLAGDOMAINS_COUNT
+
+            configURL = Config_urls()
+            url = configURL.getRedflagDomains()
+            count = 0
+
+            CHAR = string.ascii_lowercase
+            executed = False
+            if any(char in DOMAIN for char in CHAR):
+                executed = True
+                os.system(f'wget {url} 2>/dev/null')
+                with open('red.flag.domains.txt', 'r') as redflag:
+                        redflag_domains = redflag.read()
+                        if DOMAIN in redflag_domains:
+                            print(f'[!] {DOMAIN} founded in Redflag Domains')
+                            os.system('rm -rf red.flag.domains.txt')
+                            count += 1
+                            redflag.close()
+                        else:
+                            print('[+]', DOMAIN, "Not found in Redflag Domains")
+                            os.system('rm -rf red.flag.domains.txt')
+                            count == count
+                            redflag.close()
+                        
+            REDFLAGDOMAINS_COUNT = count
+
+        except KeyError as err:
+            print(Color.RED + "[!] KeyError occured: ", str(err) + Color.END)
+        except TypeError as err:
+            print(Color.RED + "[!] TypeError occurred:", str(err) + Color.END)
+        except Exception:
+            print(Color.RED + "[!] Error with IPsum's blacklists: " + Color.END)
+
+
+    # [+] Checking internal IOCs
+    @staticmethod
+    def tlpAmberCheck(ioc, tlp_url):
+        """_summary_
+        IP address or domain present in internal IOCs
+        """
+        try:
+            USERNAME = os.getenv("USER")
+            tlp_url = f"/home/{USERNAME}/Downloads/tlp.csv"  # Use for tests
+            # configURL = Config_urls()
+            # url = configURL.getTLP()
+
+            # os.system(f'wget {url} 2>/dev/null')
+            with open(tlp_url, newline='') as tlp_file:
+                reader = csv.DictReader(tlp_file)
+                for row in reader:
+                    if row['domain'] == DOMAIN or row['domain'] == DOMAIN_NAME_TO_IP:
+                        return {
+                            'domain': row['domain'],
+                            'entry_date': row['entry date'],
+                            'expired': row['expired'],
+                            'category': row['category']
+                        }
+                tlp_file.close()
+                return None
+            
+        except Exception:
+            print(Color.RED + "[!] Error with tlpAmberCheck() function" + Color.END)
+
+
+    @staticmethod
+    def tlpAmber():
+        """_summary_
+        IP address or domain present in internal IOCs, Use tlpAmberCheck()
+        """
+        try:
+            global TLP_COUNT
+            CHAR = string.ascii_lowercase
+            count = 0
+            if any(char in DOMAIN for char in CHAR):
+                ioc = DOMAIN
+            else:
+                ioc = DOMAIN_NAME_TO_IP
+            USERNAME = os.getenv("USER")
+            csv_file_path = f"/home/{USERNAME}/Downloads/tlp.csv"
+
+            result = Functions.tlpAmberCheck(ioc, csv_file_path)
+            if result:
+                print('\t- IOC :', result['domain'],
+                            '\n\t- First seen :', result['entry_date'],
+                            '\n\t- Expired :', result['expired'],
+                            '\n\t- Category :', result['category'])
+                count += 1
+            else:
+                print(ioc, "not found")
+                count = count
+
+            TLP_COUNT = count
+
+        except KeyError as err:
+            print(Color.RED + "[!] KeyError occured: ", str(err) + Color.END)
+        except TypeError as err:
+            print(Color.RED + "[!] TypeError occurred:", str(err) + Color.END)
+        except Exception:
+            print(Color.RED + "[!] Error with tlpAmber()" + Color.END)
 
 
 class Count:
@@ -421,7 +591,8 @@ class Count:
     @staticmethod
     def count():
         try:
-            return [WHOIS, VT_COUNT, DUGGY_COUNT, IPSUM_COUNT,CRIMINALIP_COUNTS, ABUSEIPDB_CONFIDENCE, OTX_COUNT, THREATBOOK]
+            return [WHOIS, VT_COUNT, DUGGY_COUNT, IPSUM_COUNT,CRIMINALIP_COUNTS, ABUSEIPDB_CONFIDENCE, 
+                    OTX_COUNT, THREATBOOK, GREYNOISE, REDFLAGDOMAINS_COUNT, TLP_COUNT]
         except Exception:
             print(Color.RED + "[!] Counting error" + Color.END)
             exit()
