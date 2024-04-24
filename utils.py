@@ -34,8 +34,12 @@ try:
     INPUT = input("Enter IP Address or Domain name: ").split()
     DOMAIN = str(INPUT[0])
 
-except Exception:
-    print(Color.RED + "[!] Domain not found" + Color.END)
+except Exception as err:
+            print('Constants error: ', err)
+# except Exception as err:
+#     print(Color.RED + "[!] Domain not found: " + str(err) + Color.END)
+# except KeyboardInterrupt:
+#         print(Color.ORANGE + '[!] Exit' + Color.END)
 
 
 # Classes:
@@ -55,8 +59,11 @@ class Api:
                         if value not in key:
                             print("\t- " + key)
                 CONFIG_FILE.close()
-        except FileNotFoundError:
-            print(Color.RED + '[!] keys_file.json not found, create it!' + Color.END)
+
+        except Exception as err:
+            print('APIConfig error: ', err)
+        # except FileNotFoundError as err:
+        #     print(Color.RED + '[!] keys_file.json not found, create it!' + str(err) + Color.END)
 
 
 class Directory:
@@ -68,8 +75,10 @@ class Directory:
         try:
             if not os.path.exists('analyzer_reports/' + TODAY):
                 os.makedirs('analyzer_reports/' + TODAY)
-        except Exception:
-            print(Color.GREEN + "[+] Existing directory" + Color.END)
+        except Exception as err:
+            print('Directory error: ', err)
+        # except Exception as err:
+        #     print(Color.GREEN + "[+] Existing directory" + str(err) + Color.END)
 
 
 class Check_INPUT:
@@ -101,9 +110,13 @@ class Check_INPUT:
                             return DOMAIN_NAME_TO_IP
                         else:
                             print("[+] Domain used: " + DOMAIN +" but couldn't be associated with an IP")
-                    except Exception :
-                            print(Color.RED + "[!] Domain couldn't be associated with an IP" + Color.END)
-                            print(Color.RED + "[!] Invalid input: " + INPUT[0] + Color.END)
+
+                    except Exception as err:
+                        print('Check input error: ', err)
+                        exit()
+                    # except Exception as err:
+                    #         print(Color.RED + "[!] Domain couldn't be associated with an IP: " + str(err) + Color.END)
+                    #         print(Color.RED + "[!] Invalid input: " + INPUT[0] + Color.END)
 
 
 # API keys builder 
@@ -156,7 +169,7 @@ class Config_file:
     def getCtiminalIP(self, domain_name_to_ip):
         url = (f"https://api.criminalip.io/v1/feature/ip/malicious-info?ip={domain_name_to_ip}")
         payload = {}
-        key = {'x-api-key': self.criminal_ip_key}  # Utilisez self.criminal_ip_key pour accéder à la clé API
+        key = {'x-api-key': self.criminal_ip_key}
         response = requests.request("GET", url, headers=key, data=payload)
         return response.json()
     

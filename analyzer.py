@@ -15,6 +15,7 @@ from bs4 import BeautifulSoup as bs
 import urllib.request
 import ipinfo
 import csv
+import pprint
 from utils import *
 # import netlas
 
@@ -48,7 +49,9 @@ class Functions:
             WHOIS = [response['country_name'], isProxy]
         
         except Exception as err:
-            print(Color.RED + "[!] Error with IP 2 Location: " + str(err) + Color.END)
+            print('IP2Location error: ', err)
+        # except Exception as err:
+        #     print(Color.RED + "[!] Error with IP 2 Location: " + str(err) + Color.END)
 
 
     @staticmethod
@@ -66,8 +69,7 @@ class Functions:
             response = handler.getDetails(DOMAIN_NAME_TO_IP)
 
             if DOMAIN_NAME_TO_IP:
-                print('\t- Organisation:', response.org,
-                        # '\n\t- Postal code:', response.postal,
+                print('\t- Organisation/ASN:', response.org,
                         '\n\t- City:', response.city,
                         '\n\t- Region:', response.region,
                         '\n\t- Continent:', response.continent['name'],
@@ -76,13 +78,15 @@ class Functions:
                         '\n\t- GPS coordinates:', response.loc,
                         '\n\t- Time zone:', response.timezone)
 
-                WHOIS_IPINFO = response.country
+                WHOIS_IPINFO = [response.country, response.org, response.continent['name'], response.region]
             else:
                 print(Color.RED + "[!] no valid IP address found" + Color.END)
                 pass
         
         except Exception as err:
-            print(Color.RED + "[!] Error with IP info: " + str(err) + Color.END)     
+            print('IPInfo error: ', err)
+        # except Exception as err:
+        #     print(Color.RED + "[!] Error with IP info: " + str(err) + Color.END)     
 
 
     # @staticmethod
@@ -100,8 +104,10 @@ class Functions:
 
     #         pprint.pprint(response)
 
+    #         NETLAS = []
+
     #     except Exception as err:
-    #         print(err)
+    #         print('Netlas', err)
 
 
     # [+] Checking public CTI sources
@@ -124,7 +130,7 @@ class Functions:
             elif response.get('response_code') == 1:
                 if response['positives'] == 0:
                     print("[!] No positives responses found in " + str(response['total']) + " AV scanned")
-                    VT_COUNT = [count, response['total']]
+                    VT_COUNT = [count, response['total'], response['permalink']]
 
                 if response['positives'] != 0:
                     print('[+] Positives responses found: ' )
@@ -138,10 +144,11 @@ class Functions:
                             print("\t- ", key, ":", stringToDisplay)
 
                     print(Color.BLUE + "[+] Number of detections: ", str(count) + Color.END)
-                    VT_COUNT = [count, response['total']]
-
+                    VT_COUNT = [count, response['total'], response['permalink']]
         except Exception as err:
-            print(Color.RED + "[!] Error with Virus Total: " + str(err) + Color.END)
+            print('VT error: ', err)
+        # except Exception as err:
+        #     print(Color.RED + "[!] Error with Virus Total: " + str(err) + Color.END)
 
 
     @staticmethod
@@ -168,10 +175,11 @@ class Functions:
                     print('[+] Count of opened ports:', response['current_opened_port']['count'])
                     portsCount = 0
 
+                    print('\t- Ports with vulnerabilities:')
                     for key in range(len(response['current_opened_port']['data'])):
                         if (response['current_opened_port']['count'] <= 10 or response['current_opened_port']['count'] > 10):
                             if response['current_opened_port']['data'][key]['has_vulnerability'] == True:
-                                print('\t-',
+                                print('\t\t-',
                                     response['current_opened_port']['data'][key]['socket_type'],
                                     response['current_opened_port']['data'][key]['port'],
                                     response['current_opened_port']['data'][key]['protocol'],
@@ -215,12 +223,14 @@ class Functions:
             CRIMINALIP_COUNTS = [count, response['current_opened_port']['count'], response['vulnerability']['count'], 
                                  response['ip_category']['count']]
         
-        except KeyError as err:
-            print(Color.RED + "[!] KeyError occured: ", str(err) + Color.END)
-        except TypeError as err:
-            print(Color.RED + "[!] TypeError occurred:", str(err) + Color.END)
         except Exception as err:
-            print(Color.RED + "[!] Error with CriminalIP: " + err + Color.END)
+            print('CriminalIP error: ', err)
+        # except KeyError as err:
+        #     print(Color.RED + "[!] KeyError occured: ", str(err) + Color.END)
+        # except TypeError as err:
+        #     print(Color.RED + "[!] TypeError occurred:", str(err) + Color.END)
+        # except Exception as err:
+        #     print(Color.RED + "[!] Error with CriminalIP: " + str(err) + Color.END)
 
 
     @staticmethod
@@ -246,13 +256,15 @@ class Functions:
                 '\n\t- Last report date:', response['data']["lastReportedAt"])
             
             ABUSEIPDB_CONFIDENCE = [response['data']['totalReports'], response['data']["abuseConfidenceScore"]]
-                
-        except KeyError as err:
-            print(Color.RED + "[!] KeyError occured: ", str(err) + Color.END)
-        except TypeError as err:
-            print(Color.RED + "[!] TypeError occurred:", str(err) + Color.END)
+
         except Exception as err:
-            print(Color.RED + "[!] Error with AbuseIPDB:" + err + Color.END)
+            print('AbuseIPDB error: ', err)        
+        # except KeyError as err:
+        #     print(Color.RED + "[!] KeyError occured: ", str(err) + Color.END)
+        # except TypeError as err:
+        #     print(Color.RED + "[!] TypeError occurred:", str(err) + Color.END)
+        # except Exception as err:
+        #     print(Color.RED + "[!] Error with AbuseIPDB:" + str(err) + Color.END)
 
     @staticmethod
     def alienVault():
@@ -292,15 +304,17 @@ class Functions:
                             break
                         tagCount = tagCount + 1
         
-        except KeyError as err:
-            print(Color.RED + "[!] KeyError occured: ", str(err) + Color.END)
-            OTX_COUNT = 0
-        except TypeError as err:
-            print(Color.RED + "[!] TypeError occurred:", str(err) + Color.END)
-            OTX_COUNT = 0
-        except Exception:
-            print(Color.RED + "[!] Error with OTX: probably a wrong input value" + Color.END)
-            OTX_COUNT = 0
+        except Exception as err:
+            print('AlienVault error: ', err)
+        # except KeyError as err:
+        #     print(Color.RED + "[!] KeyError occured: ", str(err) + Color.END)
+        #     OTX_COUNT = 0
+        # except TypeError as err:
+        #     print(Color.RED + "[!] TypeError occurred:", str(err) + Color.END)
+        #     OTX_COUNT = 0
+        # except Exception as err:
+        #     print(Color.RED + "[!] Error with OTX: probably a wrong input value: " + str(err) + Color.END)
+        #     OTX_COUNT = 0
 
     @staticmethod
     def threatBook():
@@ -323,8 +337,9 @@ class Functions:
                         '\n\t- First seen:', response['data']['summary']['first_seen'],
                         '\n\t- Last seen:', response['data']['summary']['last_seen'],
                         '\n\t- Judgment:', response['data']['summary']['judgments'],
-                        '\n\t- Is whitelited:', response['data']['summary']['whitelist'],
+                        '\n\t- Is whitelisted:', response['data']['summary']['whitelist'],
                         f'\n\t- Link: https://threatbook.io/domain/{DOMAIN}')
+                tbLink = f'https://threatbook.io/domain/{DOMAIN}'
             else:
                 executed = False
                 print('\t- ASN number:', response['data']['asn']['number'],
@@ -333,22 +348,39 @@ class Functions:
                         '\n\t- First seen:', response['data']['summary']['first_seen'],
                         '\n\t- Last seen:', response['data']['summary']['last_seen'],
                         '\n\t- Judgment:', response['data']['summary']['judgments'],
-                        '\n\t- Is whitelited:', response['data']['summary']['whitelist'],
+                        '\n\t- Is whitelisted:', response['data']['summary']['whitelist'],
                         f'\n\t- Link: https://threatbook.io/ip/{DOMAIN_NAME_TO_IP}')
+                tbLink = f'https://threatbook.io/ip/{DOMAIN_NAME_TO_IP}'
             
             if response['data']['summary']['judgments']:
-                THREATBOOK = [count+1, str(response['data']['summary']['judgments'])]
-                print(THREATBOOK)
+                THREATBOOK = [count+1, str(response['data']['summary']['judgments']), response['data']['ports'], tbLink]
             else:
-                THREATBOOK = [count, str(response['data']['summary']['judgments'])]
-                print(THREATBOOK)
-
-        except KeyError as err:
-            print(Color.RED + "[!] KeyError occured: ", str(err) + Color.END)
-        except TypeError as err:
-            print(Color.RED + "[!] TypeError occurred:", str(err) + Color.END)
-        except Exception:
-            print(Color.RED + "[!] Error with threatbook" + Color.END)
+                THREATBOOK = [count, str(response['data']['summary']['judgments']), response['data']['ports'], tbLink]
+        
+        except Exception as err:
+            print('ThreatBook error: ', err)
+            count = 0
+            response['data']['summary']['judgments'] = []
+            response['data']['ports'] = []
+            THREATBOOK = [count, str(response['data']['summary']['judgments']), response['data']['ports'], tbLink]
+        # except KeyError as err:
+        #     print(Color.RED + "[!] KeyError occured: ", str(err) + Color.END)
+        #     count = 0
+        #     response['data']['summary']['judgments'] = []
+        #     response['data']['ports'] = []
+        #     THREATBOOK = [count, str(response['data']['summary']['judgments']), response['data']['ports'], tbLink]
+        # except TypeError as err:
+        #     print(Color.RED + "[!] TypeError occurred:", str(err) + Color.END)
+        #     count = 0
+        #     response['data']['summary']['judgments'] = []
+        #     response['data']['ports'] = []
+        #     THREATBOOK = [count, str(response['data']['summary']['judgments']), response['data']['ports'], tbLink]
+        # except Exception as err:
+        #     print(Color.RED + "[!] Error with threatbook: " + str(err) + Color.END)
+        #     count = 0
+        #     response['data']['summary']['judgments'] = []
+        #     response['data']['ports'] = []
+        #     THREATBOOK = [count, str(response['data']['summary']['judgments']), response['data']['ports'], tbLink]
 
     
     @staticmethod
@@ -364,11 +396,14 @@ class Functions:
             count = 0
             riot = False  
             message = "IP not observed scanning the internet or contained in RIOT data set."
-            print(response)
-            if message in response:
-                print('\n\t- Present in RIOR DB:', response['riot'],
-                        '\n\t- Scanning internet in the last 90 days:', response['noise'])
-                count = count
+            
+            if message in response['message']:
+                print('IP not observed scanning the internet or contained in RIOT data set',
+                      '\n\t- Present in RIOT DB:', response['riot'],
+                      '\n\t- Scanning internet in the last 90 days:', response['noise'])
+
+                GREYNOISE = [count, riot]
+
             else:
                 print('\t- Classification:', response['classification'],
                             '\n\t- Scanning internet in the last 90 days:', response['noise'],
@@ -376,25 +411,39 @@ class Functions:
                             '\n\t- Last seen:', response['last_seen'],
                             '\n\t- Link:',response['link'])
             
-            if 'benign' in response['classification']:
-                    count = count+1
-            
-            if 'malicious' in response['classification']:
-                    count = count+2
+                if 'benign' in response['classification']:
+                        count = count+1
+                
+                if 'malicious' in response['classification']:
+                        count = count+2
 
-            if response['riot'] != True:
-                    riot = riot
-            else:
-                riot = True
+                if response['riot'] != True:
+                        riot = riot
+                else:
+                    riot = True
 
             GREYNOISE = [count, riot]
 
-        except KeyError as err:
-            print(Color.RED + "[!] KeyError occured: ", str(err) + Color.END)
-        except TypeError as err:
-            print(Color.RED + "[!] TypeError occurred:", str(err) + Color.END)
-        except Exception:
-            print(Color.RED + "[!] Error with greynoise" + Color.END)
+        except Exception as err:
+            print('Greynoise error: ', err)
+            count = 0
+            riot = False
+            GREYNOISE = [count, riot]
+        # except KeyError as err:
+        #     print(Color.RED + "[!] KeyError occured: ", str(err) + Color.END)
+        #     count = 0
+        #     riot = False
+        #     GREYNOISE = [count, riot]
+        # except TypeError as err:
+        #     print(Color.RED + "[!] TypeError occurred:", str(err) + Color.END)
+        #     count = 0
+        #     riot = False
+        #     GREYNOISE = [count, riot]
+        # except Exception as err:
+        #     print(Color.RED + "[!] Error with greynoise: " + str(err) + Color.END)
+        #     count = 0
+        #     riot = False
+        #     GREYNOISE = [count, riot]
             
 
 
@@ -424,12 +473,14 @@ class Functions:
             
             DUGGY_COUNT = count
 
-        except KeyError as err:
-            print(Color.RED + "[!] KeyError occured: ", str(err) + Color.END)
-        except TypeError as err:
-            print(Color.RED + "[!] TypeError occurred:", str(err) + Color.END)
-        except Exception:
-            print(Color.RED + "[!] Error with Duggy Tuxy's list: "+ Color.END)
+        except Exception as err:
+            print('DuggyTuxy error: ', err)
+        # except KeyError as err:
+        #     print(Color.RED + "[!] KeyError occured: ", str(err) + Color.END)
+        # except TypeError as err:
+        #     print(Color.RED + "[!] TypeError occurred:", str(err) + Color.END)
+        # except Exception as err:
+        #     print(Color.RED + "[!] Error with Duggy Tuxy's list: " + str(err) + Color.END)
 
     @staticmethod
     def ipsum():
@@ -469,18 +520,20 @@ class Functions:
             
             IPSUM_COUNT = [count, int(blacklists)]
 
-        except KeyError as err:
-            print(Color.RED + "[!] KeyError occured: ", str(err) + Color.END)
-        except TypeError as err:
-            print(Color.RED + "[!] TypeError occurred:", str(err) + Color.END)
-        except Exception:
-            print(Color.RED + "[!] Error with IPsum's blacklists: " + Color.END)
+        except Exception as err:
+            print('IPSum error: ', err)
+        # except KeyError as err:
+        #     print(Color.RED + "[!] KeyError occured: ", str(err) + Color.END)
+        # except TypeError as err:
+        #     print(Color.RED + "[!] TypeError occurred:", str(err) + Color.END)
+        # except Exception as err:
+        #     print(Color.RED + "[!] Error with IPsum's blacklists: " + str(err) + Color.END)
     
 
     @staticmethod
     def redflagDomains():
         """_summary_
-        Redflag Domains are lists of very recently registered probably malicious domain names in french TLDs.
+        Redflag Domains are lists of very recently registered probably malicious domain names in french TLDs
         """
         try:
             global REDFLAGDOMAINS_COUNT
@@ -506,15 +559,18 @@ class Functions:
                             os.system('rm -rf red.flag.domains.txt')
                             count == count
                             redflag.close()
-                        
+            else:
+                print('[+] No domain name provided')    
             REDFLAGDOMAINS_COUNT = count
 
-        except KeyError as err:
-            print(Color.RED + "[!] KeyError occured: ", str(err) + Color.END)
-        except TypeError as err:
-            print(Color.RED + "[!] TypeError occurred:", str(err) + Color.END)
-        except Exception:
-            print(Color.RED + "[!] Error with IPsum's blacklists: " + Color.END)
+        except Exception as err:
+            print('RedFlag error: ', err)
+        # except KeyError as err:
+        #     print(Color.RED + "[!] KeyError occured: ", str(err) + Color.END)
+        # except TypeError as err:
+        #     print(Color.RED + "[!] TypeError occurred:", str(err) + Color.END)
+        # except Exception as err:
+        #     print(Color.RED + "[!] Error with IPsum's blacklists: " + str(err) + Color.END)
 
 
     # [+] Checking internal IOCs
@@ -542,9 +598,11 @@ class Functions:
                         }
                 tlp_file.close()
                 return None
-            
-        except Exception:
-            print(Color.RED + "[!] Error with tlpAmberCheck() function" + Color.END)
+        
+        except Exception as err:
+            print('CheckTLP error: ', err)
+        # except Exception as err:
+        #     print(Color.RED + "[!] Error with tlpAmberCheck() function: " + str(err) + Color.END)
 
 
     @staticmethod
@@ -576,12 +634,14 @@ class Functions:
 
             TLP_COUNT = count
 
-        except KeyError as err:
-            print(Color.RED + "[!] KeyError occured: ", str(err) + Color.END)
-        except TypeError as err:
-            print(Color.RED + "[!] TypeError occurred:", str(err) + Color.END)
-        except Exception:
-            print(Color.RED + "[!] Error with tlpAmber()" + Color.END)
+        except Exception as err:
+            print('TLPAmber error: ', err)
+        # except KeyError as err:
+        #     print(Color.RED + "[!] KeyError occured: ", str(err) + Color.END)
+        # except TypeError as err:
+        #     print(Color.RED + "[!] TypeError occurred:", str(err) + Color.END)
+        # except Exception as err:
+        #     print(Color.RED + "[!] Error with tlpAmber(): " + str(err) + Color.END)
 
 
 class Count:
@@ -592,7 +652,10 @@ class Count:
     def count():
         try:
             return [WHOIS, VT_COUNT, DUGGY_COUNT, IPSUM_COUNT,CRIMINALIP_COUNTS, ABUSEIPDB_CONFIDENCE, 
-                    OTX_COUNT, THREATBOOK, GREYNOISE, REDFLAGDOMAINS_COUNT, TLP_COUNT]
-        except Exception:
-            print(Color.RED + "[!] Counting error" + Color.END)
+                    OTX_COUNT, THREATBOOK, GREYNOISE, REDFLAGDOMAINS_COUNT, TLP_COUNT, WHOIS_IPINFO]
+        
+        except Exception as err:
+            print('Counting error: ', err)
+        # except Exception as err:
+        #     print(Color.RED + "[!] Counting error: " + str(err) + Color.END)
             exit()

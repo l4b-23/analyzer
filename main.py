@@ -76,10 +76,11 @@ if __name__ == '__main__':
 
         print("--------------------------------------------------------------------------------------------------------")
         print(Color.BLUE + "[+] RedFlag domains's blacklists" + Color.END)
+        print(Color.ORANGE + "[!] Redflag Domains are lists of recently registered probably malicious domain names in french TLDs" + Color.END)
         Functions.redflagDomains()
 
 
-        print(Color.ORANGE + "[+] Checking intern IOC lists" + Color.END)
+        print(Color.ORANGE + "[+] Checking intern IOC list" + Color.END)
         print("--------------------------------------------------------------------------------------------------------")
         print(Color.BLUE + "[+] Limited disclosure, restricted to participants' organization and clients" + Color.END)
         Functions.tlpAmber()
@@ -88,9 +89,12 @@ if __name__ == '__main__':
         print(Color.ORANGE + "[+] Report stored, here is the summary: " + Color.END)
         print("--------------------------------------------------------------------------------------------------------")
         Summary.summary()
-        print("--------------------------------------------------------------------------------------------------------")
-    
+
     except Exception as err:
-        print(err)
-    except KeyboardInterrupt:
-        print(Color.ORANGE + '[!] Exit' + Color.END)
+            print('Main error: ', err)
+    # except TypeError as err:
+    #     print(Color.RED + "[!] TypeError occurred:", str(err) + Color.END)
+    # except Exception as err:
+    #     print(Color.RED + "[!] Error with main() function: ", str(err) + Color.END)
+    # except KeyboardInterrupt:
+    #     print(Color.ORANGE + '[!] Exit' + Color.END)
