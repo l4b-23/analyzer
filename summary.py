@@ -197,9 +197,10 @@ class Summary:
             if round(note, 2) >= 8:
                 print(Color.RED + '[!] Critical IP' + Color.END)
 
+            # Report writing
             with open('analyzer_reports/'+TODAY+'/'+ str(DOMAIN_NAME_TO_IP) + ".txt","a+") as fileReport:
                 fileReport.write(" ----------------------------------------------------------------------------------------------------------------------------")
-                fileReport.write(f"\n Report for: {DOMAIN}, associated with {DOMAIN_NAME_TO_IP} IP address")
+                fileReport.write(f"\n Report for: {DOMAIN}, associated with IP address {DOMAIN_NAME_TO_IP}")
                 fileReport.write("\n ----------------------------------------------------------------------------------------------------------------------------")
                 fileReport.write('\n[+] WHOIS Report:')
                 fileReport.write(f'\n\t- Organisation/ASN: {ipiOrg}')
@@ -282,7 +283,7 @@ class Summary:
                 fileReport.write("\n[+] Links:")
                 fileReport.write(f"\n\t- Virus Total: {vtLink}")
                 fileReport.write(f"\n\t- TreatBook: {tbLink}")
+                fileReport.close()
                 
         except Exception as err:
             print('Summary error:', err)
-            # print(Color.RED + 'Error:', err + Color.END)

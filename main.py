@@ -64,6 +64,14 @@ if __name__ == '__main__':
         print(Color.ORANGE + "[!] Greynoise with the free API = 50 requests per day" + Color.END)
         Functions.greyNoise()
 
+        print("--------------------------------------------------------------------------------------------------------")
+        print(Color.BLUE + "[+] URL Scan" + Color.END)
+        print(Color.ORANGE + "[!] URL Scan with the free API = 50 private scans requests per day" + Color.END)
+        print(Color.ORANGE + "[!] The report is stored here: " + str(os.getcwd()) + "/url_scan_report.json " 
+              + "and will be deleted once the program has finished" + Color.END)
+        print(Color.ORANGE + "[!] The scan performed here is a public scan, please pay attention to the private content" + Color.END)
+        Functions.urlScan()
+
         
         print(Color.ORANGE + "[+] Checking public Blacklists" + Color.END)
         print("--------------------------------------------------------------------------------------------------------")
@@ -92,9 +100,5 @@ if __name__ == '__main__':
 
     except Exception as err:
             print('Main error: ', err)
-    # except TypeError as err:
-    #     print(Color.RED + "[!] TypeError occurred:", str(err) + Color.END)
-    # except Exception as err:
-    #     print(Color.RED + "[!] Error with main() function: ", str(err) + Color.END)
-    # except KeyboardInterrupt:
-    #     print(Color.ORANGE + '[!] Exit' + Color.END)
+    except KeyboardInterrupt:
+        print(Color.ORANGE + '[!] Exit' + Color.END)

@@ -6,17 +6,18 @@ Principal scan functions
 """
 
 
-import json
 import os
-import requests
 from OTXv2 import OTXv2
 from OTXv2 import IndicatorTypes
 from bs4 import BeautifulSoup as bs
 import urllib.request
 import ipinfo
 import csv
-import pprint
+from datetime import datetime, timezone
 from utils import *
+# import pprint
+# import json
+# import requests
 # import netlas
 
 
@@ -50,8 +51,6 @@ class Functions:
         
         except Exception as err:
             print('IP2Location error: ', err)
-        # except Exception as err:
-        #     print(Color.RED + "[!] Error with IP 2 Location: " + str(err) + Color.END)
 
 
     @staticmethod
@@ -84,9 +83,7 @@ class Functions:
                 pass
         
         except Exception as err:
-            print('IPInfo error: ', err)
-        # except Exception as err:
-        #     print(Color.RED + "[!] Error with IP info: " + str(err) + Color.END)     
+            print('IPInfo error: ', err)   
 
 
     # @staticmethod
@@ -125,7 +122,7 @@ class Functions:
 
             if 'Resource does not exist in the dataset' in str(response):
                 print(Color.ORANGE + '[!] Message: ' + response['verbose_msg'] + Color.END)
-                VT_COUNT = [0, 0]
+                VT_COUNT = [0, 0, 0]
 
             elif response.get('response_code') == 1:
                 if response['positives'] == 0:
@@ -147,8 +144,7 @@ class Functions:
                     VT_COUNT = [count, response['total'], response['permalink']]
         except Exception as err:
             print('VT error: ', err)
-        # except Exception as err:
-        #     print(Color.RED + "[!] Error with Virus Total: " + str(err) + Color.END)
+            VT_COUNT = [0, 0, 0]
 
 
     @staticmethod
@@ -225,12 +221,6 @@ class Functions:
         
         except Exception as err:
             print('CriminalIP error: ', err)
-        # except KeyError as err:
-        #     print(Color.RED + "[!] KeyError occured: ", str(err) + Color.END)
-        # except TypeError as err:
-        #     print(Color.RED + "[!] TypeError occurred:", str(err) + Color.END)
-        # except Exception as err:
-        #     print(Color.RED + "[!] Error with CriminalIP: " + str(err) + Color.END)
 
 
     @staticmethod
@@ -259,12 +249,7 @@ class Functions:
 
         except Exception as err:
             print('AbuseIPDB error: ', err)        
-        # except KeyError as err:
-        #     print(Color.RED + "[!] KeyError occured: ", str(err) + Color.END)
-        # except TypeError as err:
-        #     print(Color.RED + "[!] TypeError occurred:", str(err) + Color.END)
-        # except Exception as err:
-        #     print(Color.RED + "[!] Error with AbuseIPDB:" + str(err) + Color.END)
+
 
     @staticmethod
     def alienVault():
@@ -306,15 +291,8 @@ class Functions:
         
         except Exception as err:
             print('AlienVault error: ', err)
-        # except KeyError as err:
-        #     print(Color.RED + "[!] KeyError occured: ", str(err) + Color.END)
-        #     OTX_COUNT = 0
-        # except TypeError as err:
-        #     print(Color.RED + "[!] TypeError occurred:", str(err) + Color.END)
-        #     OTX_COUNT = 0
-        # except Exception as err:
-        #     print(Color.RED + "[!] Error with OTX: probably a wrong input value: " + str(err) + Color.END)
-        #     OTX_COUNT = 0
+            OTX_COUNT = 0
+
 
     @staticmethod
     def threatBook():
@@ -334,8 +312,6 @@ class Functions:
                 print('\t- ASN number:', response['data']['asn']['number'],
                         '\n\t- ASN rank:', response['data']['asn']['rank'],
                         '\n\t- Ports:', response['data']['ports'],
-                        '\n\t- First seen:', response['data']['summary']['first_seen'],
-                        '\n\t- Last seen:', response['data']['summary']['last_seen'],
                         '\n\t- Judgment:', response['data']['summary']['judgments'],
                         '\n\t- Is whitelisted:', response['data']['summary']['whitelist'],
                         f'\n\t- Link: https://threatbook.io/domain/{DOMAIN}')
@@ -345,8 +321,6 @@ class Functions:
                 print('\t- ASN number:', response['data']['asn']['number'],
                         '\n\t- ASN rank:', response['data']['asn']['rank'],
                         '\n\t- Ports:', response['data']['ports'],
-                        '\n\t- First seen:', response['data']['summary']['first_seen'],
-                        '\n\t- Last seen:', response['data']['summary']['last_seen'],
                         '\n\t- Judgment:', response['data']['summary']['judgments'],
                         '\n\t- Is whitelisted:', response['data']['summary']['whitelist'],
                         f'\n\t- Link: https://threatbook.io/ip/{DOMAIN_NAME_TO_IP}')
@@ -363,24 +337,6 @@ class Functions:
             response['data']['summary']['judgments'] = []
             response['data']['ports'] = []
             THREATBOOK = [count, str(response['data']['summary']['judgments']), response['data']['ports'], tbLink]
-        # except KeyError as err:
-        #     print(Color.RED + "[!] KeyError occured: ", str(err) + Color.END)
-        #     count = 0
-        #     response['data']['summary']['judgments'] = []
-        #     response['data']['ports'] = []
-        #     THREATBOOK = [count, str(response['data']['summary']['judgments']), response['data']['ports'], tbLink]
-        # except TypeError as err:
-        #     print(Color.RED + "[!] TypeError occurred:", str(err) + Color.END)
-        #     count = 0
-        #     response['data']['summary']['judgments'] = []
-        #     response['data']['ports'] = []
-        #     THREATBOOK = [count, str(response['data']['summary']['judgments']), response['data']['ports'], tbLink]
-        # except Exception as err:
-        #     print(Color.RED + "[!] Error with threatbook: " + str(err) + Color.END)
-        #     count = 0
-        #     response['data']['summary']['judgments'] = []
-        #     response['data']['ports'] = []
-        #     THREATBOOK = [count, str(response['data']['summary']['judgments']), response['data']['ports'], tbLink]
 
     
     @staticmethod
@@ -429,22 +385,109 @@ class Functions:
             count = 0
             riot = False
             GREYNOISE = [count, riot]
-        # except KeyError as err:
-        #     print(Color.RED + "[!] KeyError occured: ", str(err) + Color.END)
-        #     count = 0
-        #     riot = False
-        #     GREYNOISE = [count, riot]
-        # except TypeError as err:
-        #     print(Color.RED + "[!] TypeError occurred:", str(err) + Color.END)
-        #     count = 0
-        #     riot = False
-        #     GREYNOISE = [count, riot]
-        # except Exception as err:
-        #     print(Color.RED + "[!] Error with greynoise: " + str(err) + Color.END)
-        #     count = 0
-        #     riot = False
-        #     GREYNOISE = [count, riot]
             
+
+    @staticmethod
+    def urlScan():
+        """_summary_
+        Check URL Scan and return the responses in a dedicated file in the reports directory.
+        Improvement needed
+        """
+        try:
+            global URLSCAN
+            
+            configFile = Config_file(KEY_FILE)
+            response = configFile.getURLScan(DOMAIN_NAME_TO_IP)
+            count = 0
+            URL_SCAN_REPORT = f'/home/{USERNAME}/Documents/url_scan_report.json'
+
+            with open(URL_SCAN_REPORT, 'r') as url_scan_report:
+                data = json.load(url_scan_report)
+                if 'data' in data and 'requests' in data['data']:
+                    requests_data = data['data']['requests']
+                    if requests_data:
+                        key = 0  # Use index 0 to access the first (and only) entry
+                        print('[+] Header:')
+                        if data['data']['requests'][0]['response']['failed']:
+                            keys = data['data']['requests'][0]['response']['failed']
+                            for key, value in keys.items():
+                                print(f'\t- {key}: {value}')
+                            print(Color.RED + '[!] Response failed' + Color.END)
+                            count = count
+                        else:
+                            headers = requests_data[key]['response']['response']['headers']
+                            for header, value in headers.items():  # Loop in Headers
+                                print(f'\t- {header}: {value}')
+                            print('[+] Response:')
+                            print('\t- RemotePort:', requests_data[key]['response']['response']['remotePort'],
+                                '\n\t- Protocol:', requests_data[key]['response']['response']['protocol'])
+                    else:
+                        print('No data in requests')
+                else:
+                    print('No key "data" or "requests"')
+
+                print('[+] Cookies and links found:')
+                if 'data' in data:
+                    if 'links' in data['data']:
+                        print('\t- Links:')
+                        for link in data['data']['links']:
+                            for key, value in link.items():
+                                print(f'\t\t- {key}: {value}')
+                    else:
+                        print('No links found')
+                        
+                    if 'cookies' in data['data']:
+                        print('\t- Cookies:')
+                        for i, cookie in enumerate(data['data']['cookies']):  
+                            if i == 0:
+                                print('', end=' ')  # improve indentation
+                            else:
+                                print('\t\t-', end=' ')
+                            for key, value in cookie.items():
+                                print(f'\t\t- {key}: {value}')
+                    else:
+                        print('No cookies found')
+                else:
+                    print('no key data')
+
+                print('[+] Domain Infos:')
+                if 'lists' in data:
+                    for key, value in data['lists'].items():
+                        if key != 'certificates':
+                            print('\t- {}: {}'.format(key.capitalize(), ', '.join(map(str, value))))
+                else:
+                    print('no key in first loop')
+
+                if 'certificates' in data['lists']:
+                    print('[+] Certificates:')
+                    for certificates in data['lists']['certificates']:
+                        print('\t- Certificate:')
+                        for key in ['subjectName', 'issuer', 'validFrom', 'validTo']:
+                            if key in certificates:
+                                if key.startswith('valid'):
+                                    value = datetime.fromtimestamp(certificates[key], timezone.utc)
+                                else:
+                                    value = certificates[key]
+                                print(f'\t\t- {key.capitalize()}: {value}')
+
+                else:
+                    print('no key lists')
+                
+                if 'verdicts' in data:
+                    print('[+] URL Scan Verdict: ')
+                    verdicts = data['verdicts']['urlscan']
+                    for key in ['hasVerdicts', 'malicious']:
+                        if key in verdicts:
+                            print(f'\t- {key.capitalize()}: {verdicts[key]}')
+
+            url_scan_report.close()
+            os.system(f'rm -rf {URL_SCAN_REPORT}')
+          
+            URLSCAN = [count]
+
+        except Exception as err:
+            print('URL Scan error: ', err)
+            URLSCAN = [count]
 
 
     # [+] Checking public Blacklists
@@ -475,12 +518,7 @@ class Functions:
 
         except Exception as err:
             print('DuggyTuxy error: ', err)
-        # except KeyError as err:
-        #     print(Color.RED + "[!] KeyError occured: ", str(err) + Color.END)
-        # except TypeError as err:
-        #     print(Color.RED + "[!] TypeError occurred:", str(err) + Color.END)
-        # except Exception as err:
-        #     print(Color.RED + "[!] Error with Duggy Tuxy's list: " + str(err) + Color.END)
+
 
     @staticmethod
     def ipsum():
@@ -522,12 +560,6 @@ class Functions:
 
         except Exception as err:
             print('IPSum error: ', err)
-        # except KeyError as err:
-        #     print(Color.RED + "[!] KeyError occured: ", str(err) + Color.END)
-        # except TypeError as err:
-        #     print(Color.RED + "[!] TypeError occurred:", str(err) + Color.END)
-        # except Exception as err:
-        #     print(Color.RED + "[!] Error with IPsum's blacklists: " + str(err) + Color.END)
     
 
     @staticmethod
@@ -565,12 +597,6 @@ class Functions:
 
         except Exception as err:
             print('RedFlag error: ', err)
-        # except KeyError as err:
-        #     print(Color.RED + "[!] KeyError occured: ", str(err) + Color.END)
-        # except TypeError as err:
-        #     print(Color.RED + "[!] TypeError occurred:", str(err) + Color.END)
-        # except Exception as err:
-        #     print(Color.RED + "[!] Error with IPsum's blacklists: " + str(err) + Color.END)
 
 
     # [+] Checking internal IOCs
@@ -601,8 +627,6 @@ class Functions:
         
         except Exception as err:
             print('CheckTLP error: ', err)
-        # except Exception as err:
-        #     print(Color.RED + "[!] Error with tlpAmberCheck() function: " + str(err) + Color.END)
 
 
     @staticmethod
@@ -636,12 +660,6 @@ class Functions:
 
         except Exception as err:
             print('TLPAmber error: ', err)
-        # except KeyError as err:
-        #     print(Color.RED + "[!] KeyError occured: ", str(err) + Color.END)
-        # except TypeError as err:
-        #     print(Color.RED + "[!] TypeError occurred:", str(err) + Color.END)
-        # except Exception as err:
-        #     print(Color.RED + "[!] Error with tlpAmber(): " + str(err) + Color.END)
 
 
 class Count:
@@ -656,6 +674,4 @@ class Count:
         
         except Exception as err:
             print('Counting error: ', err)
-        # except Exception as err:
-        #     print(Color.RED + "[!] Counting error: " + str(err) + Color.END)
             exit()

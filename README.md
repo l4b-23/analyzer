@@ -15,6 +15,7 @@
 - [OTX / AlienVault](https://otx.alienvault.com/)
 - [ThreatBook](https://threatbook.io/)
 - [GreyNoise](https://www.greynoise.io/)
+- [URL Scan](https://urlscan.io/)
 - [Duggy Tuxy blacklist](https://github.com/duggytuxy/malicious_ip_addresses)
 - [IPsum blacklists](https://github.com/stamparm/ipsum)
 - [Redflag Domains](https://red.flag.domains/)
@@ -27,6 +28,9 @@ domain,entry date,expired,category
 216.151.191.12,05/04/2024,FALSE,unknown
 lemespaceclent.fr,08/04/2024,FALSE,benign
 ```
+
+### URL Scan
+> ### **[!] The scan performed here is a public scan, please pay attention to the private content**
 
 
 ## Setup
@@ -51,7 +55,8 @@ pip3 install -r requirements.txt
         "abuse ip db": "your API key",
         "alien vault": "your API key",
         "threatbook": "your API key",
-        "greynoise": "your API key"
+        "greynoise": "your API key",
+		"url scan": "your API key"
     }
 }     
 ```
@@ -72,12 +77,12 @@ analyzer
 
 
 
-# Output examples
+## Output example
 > ### **Report generated and stored in a text file**
 
 ```
  ---------------------------------------------------------------------------------------------------------------
- Report for: 43.128.141.106, associated with 43.128.141.106 IP address
+ Report for: 43.128.141.106, associated with IP address 43.128.141.106
  ---------------------------------------------------------------------------------------------------------------
 [+] WHOIS Report:
 	- Organisation/ASN: AS132203 Tencent Building, Kejizhongyi Avenue
@@ -139,5 +144,4 @@ analyzer
 ```
 
 ## Coming soon:
-- [URLScan](https://urlscan.io/)
 - [Checkphish](https://checkphish.bolster.ai/)

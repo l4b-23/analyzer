@@ -35,11 +35,7 @@ try:
     DOMAIN = str(INPUT[0])
 
 except Exception as err:
-            print('Constants error: ', err)
-# except Exception as err:
-#     print(Color.RED + "[!] Domain not found: " + str(err) + Color.END)
-# except KeyboardInterrupt:
-#         print(Color.ORANGE + '[!] Exit' + Color.END)
+    print('Constants error: ', err)
 
 
 # Classes:
@@ -62,8 +58,6 @@ class Api:
 
         except Exception as err:
             print('APIConfig error: ', err)
-        # except FileNotFoundError as err:
-        #     print(Color.RED + '[!] keys_file.json not found, create it!' + str(err) + Color.END)
 
 
 class Directory:
@@ -77,8 +71,6 @@ class Directory:
                 os.makedirs('analyzer_reports/' + TODAY)
         except Exception as err:
             print('Directory error: ', err)
-        # except Exception as err:
-        #     print(Color.GREEN + "[+] Existing directory" + str(err) + Color.END)
 
 
 class Check_INPUT:
@@ -113,10 +105,9 @@ class Check_INPUT:
 
                     except Exception as err:
                         print('Check input error: ', err)
+                        print(Color.RED + "[!] Domain couldn't be associated with an IP: " + str(err) + Color.END)
+                        print(Color.RED + "[!] Invalid input: " + INPUT[0] + Color.END)
                         exit()
-                    # except Exception as err:
-                    #         print(Color.RED + "[!] Domain couldn't be associated with an IP: " + str(err) + Color.END)
-                    #         print(Color.RED + "[!] Invalid input: " + INPUT[0] + Color.END)
 
 
 # API keys builder 
@@ -133,6 +124,7 @@ class Config_file:
             self.alien_vault_key = configFile['api'].get('alien vault')
             self.threatbook_key = configFile['api'].get('threatbook')
             self.greynoise_key = configFile['api'].get('greynoise')
+            self.url_scan_key = configFile['api'].get('url scan')
 
 
     def getIP2Location(self, domain_name_to_ip):
@@ -199,8 +191,29 @@ class Config_file:
         key = {"accept": "application/json","key": self.greynoise_key}
         response = requests.get(url, headers=key)
         return response.json()
-            
+    
+    def getURLScan(self, domain_name_to_ip):
+        CHAR = string.ascii_lowercase
+        executed = False
+        if any(char in DOMAIN for char in CHAR):
+            executed = True
+            key = {'API-Key':'af0e8508-b8c3-4e6d-948c-bf24b7443cbd','Content-Type':'application/json'}
+            data = {"url": f'http://{domain_name_to_ip}', "visibility": "public"}
+            response = requests.post('https://urlscan.io/api/v1/scan/',headers=key, data=json.dumps(data))
+            message = str(response.json()['message'])
+            uuid = str(response.json()['uuid'])
 
+            while True:
+                time.sleep(10) 
+                if message == "Submission successful":
+                    break
+
+            os.system(f'curl https://urlscan.io/api/v1/result/{uuid}/ -o /home/{USERNAME}/Documents/url_scan_report.json 2>/dev/null')
+        else:
+            executed = False
+            print(Color.RED + '[!] The domain name is invalid, an IP address has probably been used' + Color.END)
+
+            
 # URLs builder
 class Config_urls:
     def __init__(self):
