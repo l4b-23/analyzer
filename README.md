@@ -16,9 +16,11 @@
 - [ThreatBook](https://threatbook.io/)
 - [GreyNoise](https://www.greynoise.io/)
 - [URL Scan](https://urlscan.io/)
+- [Check Phish](https://checkphish.bolster.ai/)
 - [Duggy Tuxy blacklist](https://github.com/duggytuxy/malicious_ip_addresses)
 - [IPsum blacklists](https://github.com/stamparm/ipsum)
 - [Redflag Domains](https://red.flag.domains/)
+- [C2 Tracker](https://tracker.viriback.com/)
 - **checks internal IOC in a csv file**
 
 ### CSV file format tested
@@ -55,8 +57,9 @@ pip3 install -r requirements.txt
         "abuse ip db": "your API key",
         "alien vault": "your API key",
         "threatbook": "your API key",
-        "greynoise": "your API key",
-		"url scan": "your API key"
+		"greynoise": "your API key",
+		"url scan": "your API key",
+		"check phish": "your API key"
     }
 }     
 ```
@@ -144,4 +147,3 @@ analyzer
 ```
 
 ## Coming soon:
-- [Checkphish](https://checkphish.bolster.ai/)

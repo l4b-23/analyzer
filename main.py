@@ -20,7 +20,7 @@ if __name__ == '__main__':
         
         print(Color.ORANGE + "[+] Create a directory to store reports" + Color.END)
         print("--------------------------------------------------------------------------------------------------------")
-        Directory.getReportDierectory()
+        Directory.getReportDirectory()
         print("[+] Directory create, report link is stored in: " + str(os.getcwd()) + '/analyzer_reports')
         
         print(Color.ORANGE + "[+] Checking public Whois sources" + Color.END)
@@ -72,6 +72,11 @@ if __name__ == '__main__':
         print(Color.ORANGE + "[!] The scan performed here is a public scan, please pay attention to the private content" + Color.END)
         Functions.urlScan()
 
+        print("--------------------------------------------------------------------------------------------------------")
+        print(Color.BLUE + "[+] Check Phish Scan" + Color.END)
+        print(Color.ORANGE + "[!] Check Phish Scan with the free API = 25 scans requests per day" + Color.END)
+        Functions.checkPhish()
+
         
         print(Color.ORANGE + "[+] Checking public Blacklists" + Color.END)
         print("--------------------------------------------------------------------------------------------------------")
@@ -86,6 +91,11 @@ if __name__ == '__main__':
         print(Color.BLUE + "[+] RedFlag domains's blacklists" + Color.END)
         print(Color.ORANGE + "[!] Redflag Domains are lists of recently registered probably malicious domain names in french TLDs" + Color.END)
         Functions.redflagDomains()
+
+        print("--------------------------------------------------------------------------------------------------------")
+        print(Color.BLUE + "[+] C2 Tracker blacklist" + Color.END)
+        print(Color.ORANGE + "[!] C2 Tracker identifies a list of IOCs linked to command and control servers (C2)." + Color.END)
+        Functions.c2Tracker()
 
 
         print(Color.ORANGE + "[+] Checking intern IOC list" + Color.END)

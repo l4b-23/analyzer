@@ -13,7 +13,7 @@ import re
 import string
 import requests
 import json
-import PyPDF2
+# import PyPDF2
 
 
 # Colors:
@@ -62,13 +62,14 @@ class Api:
 
 class Directory:
     @staticmethod
-    def getReportDierectory():
+    def getReportDirectory():
         """_summary_
         Create a folder in the current directory to store results 
         """
         try:
             if not os.path.exists('analyzer_reports/' + TODAY):
                 os.makedirs('analyzer_reports/' + TODAY)
+
         except Exception as err:
             print('Directory error: ', err)
 
@@ -125,6 +126,7 @@ class Config_file:
             self.threatbook_key = configFile['api'].get('threatbook')
             self.greynoise_key = configFile['api'].get('greynoise')
             self.url_scan_key = configFile['api'].get('url scan')
+            self.check_phish_key = configFile['api'].get('check phish')
 
 
     def getIP2Location(self, domain_name_to_ip):
@@ -168,9 +170,10 @@ class Config_file:
 
     def getAbuseIPDB(self, domain_name_to_ip):
         url = "https://api.abuseipdb.com/api/v2/check"
-        querystring = {'ipAddress': domain_name_to_ip, 'maxAgeInDays': '90'}
+        query_string = {'ipAddress': domain_name_to_ip, 'maxAgeInDays': '90'}
         key = {'Accept': 'applications/json', 'key': self.abuse_ip_db_key}
-        response = requests.request(method='GET', url=url, headers=key, params=querystring)
+        response = requests.request(method='GET', url=url, headers=key, params=query_string)
+
         if response.status_code == 200:
             return response.json()
     
@@ -195,9 +198,10 @@ class Config_file:
     def getURLScan(self, domain_name_to_ip):
         CHAR = string.ascii_lowercase
         executed = False
+
         if any(char in DOMAIN for char in CHAR):
             executed = True
-            key = {'API-Key':'af0e8508-b8c3-4e6d-948c-bf24b7443cbd','Content-Type':'application/json'}
+            key = {'API-Key': self.url_scan_key,'Content-Type':'application/json'}
             data = {"url": f'http://{domain_name_to_ip}', "visibility": "public"}
             response = requests.post('https://urlscan.io/api/v1/scan/',headers=key, data=json.dumps(data))
             message = str(response.json()['message'])
@@ -212,6 +216,9 @@ class Config_file:
         else:
             executed = False
             print(Color.RED + '[!] The domain name is invalid, an IP address has probably been used' + Color.END)
+    
+    def getCheckPhish(self):
+        return self.check_phish_key
 
             
 # URLs builder
@@ -236,3 +243,7 @@ class Config_urls:
 
     def getTLP(self):
         return self.tlp_url
+    
+
+    def getC2Tracker():
+        os.system(f'curl https://tracker.viriback.com/dump.php -o /home/{USERNAME}/Documents/dump.csv 2>/dev/null')
