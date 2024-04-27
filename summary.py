@@ -12,11 +12,13 @@ from utils import *
 
 class Summary:
     """_summary_
-    Calculates scores and returns results
+    Calculates scores 
+    Returns results in console and text file
     """
     @staticmethod
     def summary():
         try:
+            # Variables obtained from the count() function in "analyzer"
             # whois
             country = Count.count()[0][0]
             prx = Count.count()[0][1]
@@ -29,7 +31,7 @@ class Summary:
             vt = Count.count()[1][0]
             vt_total_scanners = Count.count()[1][1]
             vt_link = Count.count()[1][2]
-            ci_count = Count.count()[4][0]
+            ci = Count.count()[4][0]
             ci_port_count = Count.count()[4][1]
             ci_vuln_count = Count.count()[4][2]
             ci_cat_count = Count.count()[4][3]
@@ -46,8 +48,8 @@ class Summary:
             check_phish = Count.count()[13][0]
             check_phish_link = Count.count()[13][1]
             check_phish_verdict = Count.count()[13][2]
-            tf = Count.count()[14][0]
-            tf_link = Count.count()[14][1]
+            tf = Count.count()[15][0]
+            tf_link = Count.count()[15][1]
 
             # public blcklists
             dt = Count.count()[2]
@@ -60,18 +62,90 @@ class Summary:
             # private blacklist
             tlp = Count.count()[10]
 
-            agressivity = 0
-            malicious = 0
-            reported = 0
 
-            # Console Report
-            print('[+] Country:',str(country),
+            # ------------------------------------------------------------------------------------------
+            """_summary_
+            Calculation of the final score
+            """
+            # ------------------------------------------------------------------------------------------
+            agressivity = 2
+            malicious = 2
+            reported = 2
+
+            # Calculation of Agressivity
+            if vt == 0 and dt == 0 and ipsum == 0 and rfd == 0 and c2 == 0:
+                agressivity = 2
+            elif vt <= 5 and (dt == 0 or ipsum == 0 or rfd == 0 or c2 == 0):
+                for value in [dt, rfd]:
+                    if value == 1:
+                        agressivity += 2
+                if ipsum == 1:
+                    agressivity = 6
+                if c2 == 1:
+                    agressivity = 8
+            elif vt > 5 and vt <= 10 and (dt == 0 or ipsum == 0 or rfd == 0 or c2 == 0):
+                for value in [dt, rfd]:
+                    if value == 1:
+                        agressivity += 2
+                if ipsum == 1:
+                    agressivity = 8
+                if c2 == 1:
+                    agressivity = 10
+            elif vt > 10 and (dt == 0 or ipsum == 0 or rfd == 0 or c2 == 0):
+                for value in [dt, ipsum, rfd]:
+                    if value == 1:
+                        agressivity += 2
+                if c2 == 1:
+                    agressivity = 10
+            
+            if tf == 1 or tlp == 1:
+                agressivity += 10
+            
+            #  Calculation of Malicious
+            if vt == 0 and ci == 0 and gn == 0 and url_scan == 0 and tb == 0:
+                malicious = 2
+            elif vt < 4 and (ci == 0 or gn == 0 or url_scan == 0 or tb == 0):
+                if url_scan == 1:
+                    malicious = 4
+                if ci == 1 or gn == 1 or tb == 1:
+                    malicious = 6
+            elif (vt >= 4 and vt <= 10) and (ci == 0 or gn == 0 or url_scan == 0 or tb == 0):
+                malicious = 8
+            elif vt > 10 and (ci == 0 or gn == 0 or url_scan == 0 or tb == 0):
+                malicious = 10
+            
+            # Calculation of Reported
+            if vt == 0 and ab_reports == 0 and otx == 0:
+                reported = 2
+            elif vt < 4 or ab_reports < 20 or otx < 4:
+                reported = 4
+            elif (vt >= 4 and vt < 8) or (ab_reports >= 10 and ab_reports < 100) or otx >= 4:
+                reported = 6
+            elif (vt >= 8 and vt < 10) or ab_reports >= 100 or otx >= 4:
+                reported = 8
+            else:
+                reported = 10
+            
+            # Operation to ensure that the value of the variable remains within the specified range (between 2 and 10)
+            agressivity = min(10, max(2, agressivity))
+            malicious = min(10, max(2, malicious))
+            reported = min(10, max(2, reported))
+            
+            final_score = (agressivity + malicious + reported) / 3
+
+
+            # ------------------------------------------------------------------------------------------
+            """_summary_
+            Console Report
+            """
+            # ------------------------------------------------------------------------------------------
+            print(f'[+] COUNTRY: {str(country)}',
                   '\n[+] Categorized as public proxy (IP 2 Location):',str(prx),
                   '\n[+] Present in RIOT DB (Greynoise):',gn_riot,
                   "\n\t[+] RIOT informs about IPs used by business services who certainly won't attack you.")
             print("--------------------------------------------------------------------------------------------------------")
             
-            if (vt == 0):
+            if vt == 0:
                 print('[+] Clean on Virus Total')
             else:
                 print("[!] Detected on Virus Total",
@@ -79,99 +153,64 @@ class Summary:
                       '\n\t- Count of Antivirus scanned:', vt_total_scanners)
             print("--------------------------------------------------------------------------------------------------------")
             
-            if dt == 0:  # integrate other blacklists to adjust the result
+            if dt == 0:
                 print("[+] Not in the Duggy Tuxy blacklist")
-                agressivity = 2
             else:
                 print(Color.RED + "[!] Found in Duggy Tuxy blacklist" + Color.END)
             if ipsum == 0:
-                print("[+] Not in IPsum's blacklists")
-                agressivity = 2
+                print("[+] Not in IPSUM's blacklists")
             else:
-                print(Color.RED + "[!] Found in IPsum's blacklists" + Color.END)
+                print(Color.RED + f"[!] Found in: {ipsum_blacklists} IPSUM's blacklists" + Color.END)
             if rfd == 0:
                 print("[+] Not in Redflag Domains")
-                agressivity = 2
             else:
                 print(Color.RED + "[!] Found in Redflag Domains" + Color.END)
             if c2 == 0:
                 print("[+] Not in C2 Tracker")
-                agressivity = 2
             else:
                 print(Color.RED + f"[!] Found in C2 Tracker: {c2_fam} (Familly)" + Color.END)
-
-            if (dt == 1 and vt <= 8):
-                agressivity = 4
-            if (dt == 1 and vt >= 8 and vt <= 15):
-                agressivity = 6
-            if (dt == 1 and vt >= 16 and vt <= 25):
-                agressivity = 8
-            if (dt == 1 and vt >= 26):
-                agressivity = 10
-            if (ipsum == 1 and ipsum_blacklists <= 3):
-                agressivity = 4
-            if (ipsum == 1 and vt >= 8 and ipsum_blacklists > 3 and  ipsum_blacklists < 5):
-                agressivity = 6
-            if (ipsum == 1 and vt >= 16 and ipsum_blacklists > 5 and  ipsum_blacklists < 7):
-                agressivity = 8
-            if (ipsum == 1 and ipsum_blacklists > 7):
-                agressivity = 10
-            if (dt == 1 and ipsum == 1 and vt <= 3 and ipsum_blacklists < 2):
-                agressivity = 4
-            if (dt == 1 and ipsum == 1 and vt > 4 and ipsum_blacklists > 2 and ipsum_blacklists < 4):
-                agressivity = 6
-            if (dt == 1 and ipsum == 1 and vt > 6 and ipsum_blacklists > 4 and ipsum_blacklists < 8):
-                agressivity = 8
-            if (dt == 1 and ipsum == 1 and vt > 6 and ipsum_blacklists >= 8):
-                agressivity = 10
-            print('[!] Agressivity:', agressivity)
-            print("--------------------------------------------------------------------------------------------------------")
-            
-            if ci_count == 0:
-                print('[+] Not reporteded by Criminal IP')
+            if tf == 0:
+                print("[+] Not in ThreaTFox")
             else:
-                if ci_count == 1:
-                    print("[!] Reported malicious on Criminal IP",
-                        "\n\t- Count of opened ports:",ci_port_count,
-                        "\n\t- Count of vulnerability founded:",ci_vuln_count,
-                        "\n\t- Count of IP category:",ci_cat_count)
-
-                if (ci_count == 1 and agressivity <= 4 or gn == 1 and agressivity <= 4):
-                    malicious = 4
-                if (ci_count == 1 and agressivity > 4 and agressivity <= 6 or gn == 1 and agressivity > 4 and agressivity <= 6):
-                    malicious = 6
-                if (ci_count == 1 and agressivity > 6 and agressivity <= 8 or gn == 1 and agressivity > 6 and agressivity <= 8):
-                    malicious = 8
-                if (ci_count == 1 and agressivity > 8 or gn == 1 and agressivity > 8):
-                    malicious = 10
-                if (ci_count == 1 and gn == 1 and agressivity <= 4):
-                    malicious = 4
-                if (ci_count == 1 and gn == 1 and agressivity > 4 and agressivity <= 6):
-                    malicious = 6
-                if (ci_count == 1 and gn == 1 and agressivity > 6 and agressivity <= 8):
-                    malicious = 8
-                if (ci_count == 1 and gn == 1 and agressivity > 8):
-                    malicious = 10
-                print('[!] Malicious:', malicious)
+                print(Color.ORANGE + "[!] Found in ThreaTFox" + Color.END)
+            if tlp == 0:
+                print("[+] Not in internal IOCs")
+            else:
+                print(Color.RED + "[!] Found in internal IOCs" + Color.END)
+            print("--------------------------------------------------------------------------------------------------------")
+            print(f'[!] Agressivity: {agressivity}')
             print("--------------------------------------------------------------------------------------------------------")
             
-            if ab_reports == 0:  # Integrate otx to adjust the result
+            if ci == 0:
+                print('[+] Not Considered malicious on Criminal IP')
+            else:
+                print("[!] Considered malicious on Criminal IP",
+                    "\n\t- Count of opened ports:",ci_port_count,
+                    "\n\t- Count of vulnerability founded:",ci_vuln_count,
+                    "\n\t- Count of IP category:",ci_cat_count)
+            
+            if gn == 0:
+                print('[+] Not Considered malicious on Greynoise')
+            else:
+                print("[!] Considered malicious on Greynoise")
+            print("--------------------------------------------------------------------------------------------------------")
+            
+            if url_scan == 0:
+                print('[+] Not Considered malicious on URL Scan report')
+            else:
+                print("[!] Considered malicious on URL Scan report")
+            print("--------------------------------------------------------------------------------------------------------")
+            print(f'[!] Malicious: {malicious}')
+            print("--------------------------------------------------------------------------------------------------------")
+            
+            if ab_reports == 0:
                 print("[+] Not found on AbuseIPDB")
             else:
                 print("[!] Reported on AbuseIPDB",
                     "\n\t- Confidence index:",ab_cnfidence, '%',
                     "\n\t- Count of reports:",ab_reports)
-                if (ab_reports <= 50 and agressivity < 4 and malicious <= 4):
-                    reported = 4
-                if (ab_reports >= 50 and agressivity <= 6 and malicious <= 6):
-                    reported = 6
-                if (ab_reports >= 50 and agressivity <= 8 and malicious <= 8):
-                    reported = 8     
-                if (ab_reports >= 50 and agressivity > 8 and malicious > 8):
-                    reported = 10
-                print(f'[!] Reported: {reported}')
             print("--------------------------------------------------------------------------------------------------------")
-                
+
             if otx == 0:
                 print("[+] No pulses reported on OTX")
             else:
@@ -179,13 +218,13 @@ class Summary:
             print("--------------------------------------------------------------------------------------------------------")
 
             if tb == 0:
-                print("[+] No judgment reported on Threatbook")
+                print("[+] No judgment reported on ThreaTBook")
             else:
-                print(f"[!] Judgment reported on Threatbook: {tb_judgment}")
+                print(f"[!] Judgment reported on ThreaTBook: {tb_judgment}")
             print("--------------------------------------------------------------------------------------------------------")
         
             if isinstance(tb_ports, list):
-                print("[!] Top 10 ports listed on Threatbook, see the links above for the full list")
+                print("[!] Top 10 ports reported on ThreaTBook, see the links above for the full list")
                 max_ports = 10
                 ports_displayed = 0
                 for port in tb_ports:
@@ -196,89 +235,74 @@ class Summary:
                     else:
                         break
             else:
-                print("[+] No opened ports on Threatbook")
+                print("[+] No opened ports on ThreaTBook")
             print("--------------------------------------------------------------------------------------------------------")
 
-            if tf == 0:
-                print("[+] Not reported on ThreatFox")
-            else:
-                print(Color.ORANGE + "[!] Reported on ThreatFox" + Color.END)
-            print("--------------------------------------------------------------------------------------------------------")
-
-            if gn == 0:
-                print('[+] Not reporteded by Greynoise')
-            else:
-                print("[!] Reported malicious on Greynoise")
-            print("--------------------------------------------------------------------------------------------------------")
-
-            if url_scan == 0:
-                print('[+] Not reporteded as malicious by URL Scan report')
-            else:
-                print("[!] Reporteded as malicious by URL Scan report")
-            print("--------------------------------------------------------------------------------------------------------")
-            
             if check_phish == 0:
                 print('[+] Clean on Check Phish or Scan was unsuccessful')
             else:
                 print(f"[!] Reported on Check Phish: {check_phish_verdict}")
             print("--------------------------------------------------------------------------------------------------------")
-
-            if tlp == 0:
-                print("[+] Not reported in internal IOCs")
-            else:
-                print(Color.RED + "[!] Reported in internal IOCs" + Color.END)
+            print(f'[!] Reported: {reported}')
             print("--------------------------------------------------------------------------------------------------------")
 
-            note = (agressivity+malicious+reported)
-            
-            note +=4 if rfd !=0 else 0
-            note +=6 if tb !=0 else 0
-            note +=10 if tlp !=0 else 0
-
-            # Nested ternary expression to determine the divisor as a function of the note value
-            note = int(note) / (4 if note >= 40 else (5 if note >= 50 else 3))
-
-            print("[!] General note:", round(note, 2))
-            if round(note, 2) <= 2:
+            print("[!] General note:", round(final_score, 2))
+            if round(final_score, 2) <= 2:
                 print(Color.GREEN + '[!] Low IP' + Color.END)
-            if (round(note, 2) > 2 and round(note, 2) < 6):
+
+            if (round(final_score, 2) > 2 and round(final_score, 2) < 5):
                 print(Color.ORANGE + '[!] Medium IP' + Color.END)
-            if (round(note, 2) >= 6 and round(note, 2) < 8):
+
+            if (round(final_score, 2) >= 5 and round(final_score, 2) < 8):
                 print(Color.RED + '[!] High IP' + Color.END)
-            if round(note, 2) >= 8:
+
+            if round(final_score, 2) >= 8:
                 print(Color.RED + '[!] Critical IP' + Color.END)
 
-            # Report writing
+
+            # ------------------------------------------------------------------------------------------
+            """_summary_
+            Writes the report to a text file
+            """
+            # ------------------------------------------------------------------------------------------
             with open('analyzer_reports/'+TODAY+'/'+ str(DOMAIN_NAME_TO_IP) + ".txt","a+") as fileReport:
-                fileReport.write(" ----------------------------------------------------------------------------------------------------------------------------")
+                fileReport.write(" ------------------------------------------------------------------------------------------------------------------------------")
                 fileReport.write(f"\n Report for: {DOMAIN}, associated with IP address {DOMAIN_NAME_TO_IP}")
                 fileReport.write("\n ----------------------------------------------------------------------------------------------------------------------------")
+                
                 fileReport.write('\n[+] WHOIS Report:')
                 fileReport.write(f'\n\t- Organisation/ASN: {ipi_org}')
-                fileReport.write(f'\n\t- Country: {country}')
-                fileReport.write(f'\n\t- Country code: {ipi_country}')
+                fileReport.write(f'\n\t- COUNTRY: {country}')
+                fileReport.write(f'\n\t- COUNTRY code: {ipi_country}')
                 fileReport.write(f'\n\t- Continent: {ipi_continent}')
                 fileReport.write(f'\n\t- Region: {ipi_region}')
                 fileReport.write("\n ----------------------------------------------------------------------------------------------------------------------------")
-                fileReport.write(f"\n[+] General note: {str(round(note, 2))}")
-                if round(note, 2) <= 2:
+                
+                fileReport.write(f"\n[+] General note: {str(round(final_score, 2))}")
+                if round(final_score, 2) <= 2:
                     fileReport.write('\n\t[!] Low IP')
-                if (round(note, 2) > 2 and round(note, 2) < 6):
+
+                if (round(final_score, 2) > 2 and round(final_score, 2) < 5):
                     fileReport.write('\n\t[!] Medium IP')
-                if (round(note, 2) >= 6 and round(note, 2) < 8):
+
+                if (round(final_score, 2) >= 5 and round(final_score, 2) < 8):
                     fileReport.write('\n\t[!] High IP')
-                if round(note, 2) >= 8:
+
+                if round(final_score, 2) >= 8:
                     fileReport.write('\n\t[!] Critical IP')
                 fileReport.write("\n ----------------------------------------------------------------------------------------------------------------------------")
+                
                 fileReport.write("\n[+] Internal IOCs status")
                 if tlp == 0:
-                    fileReport.write("\n\t[+] Not reported in internal IOCs")
+                    fileReport.write("\n\t[+] Not in internal IOCs")
                 else:
-                    fileReport.write("\n\t[!] Reported in internal IOCs")
+                    fileReport.write("\n\t[!] Found in internal IOCs")
                 fileReport.write("\n ----------------------------------------------------------------------------------------------------------------------------")
+                
                 fileReport.write(f'\n[+] Present in RIOT DB (Greynoise): {str(gn_riot)}')
                 fileReport.write("\n\tRIOT informs about IPs used by business services who certainly won't attack you.")
                 fileReport.write("\n ----------------------------------------------------------------------------------------------------------------------------")
+                
                 fileReport.write("\n[+] Additional infos")
                 if vt == 0:
                     fileReport.write('\n[+] Clean on Virus Total')
@@ -286,31 +310,47 @@ class Summary:
                     fileReport.write("\n[!] Detected on Virus Total")
                     fileReport.write(f'\n\t- Count of detections: {vt}')
                 fileReport.write("\n --------------------------------------------------------------------------------------------------------")
-                if ci_count == 0:
-                    fileReport.write('\n[+] Not reporteded by Criminal IP')
+                
+                if ci == 0:
+                    fileReport.write('\n[+] Not considered malicious on Criminal IP')
                 else:
-                    fileReport.write("\n[!] Reported malicious on Criminal IP")
+                    fileReport.write("\n[!] Considered malicious on Criminal IP")
                     fileReport.write(f"\n\t- Count of opened ports: {str(ci_port_count)}")
                 fileReport.write("\n --------------------------------------------------------------------------------------------------------")
+                
+                if gn == 0:
+                    fileReport.write('\n[+] Not considered malicious on Greynoise')
+                else:
+                    fileReport.write("\n[!] Considered malicious on Greynoise")
+                fileReport.write("\n --------------------------------------------------------------------------------------------------------")
+                
+                if url_scan == 0:
+                    fileReport.write('\n[+] Not considered malicious on URL Scan report')
+                else:
+                    fileReport.write("\n[!] Considered malicious on URL Scan Report")
+                fileReport.write("\n --------------------------------------------------------------------------------------------------------")
+                
                 if ab_reports == 0:
                     fileReport.write("\n[+] Not found on Abuse IP DB")
                 else:
                     fileReport.write("\n[!] Reported on Abuse IP DB")
                     fileReport.write(f"\n\t- Count of reports: {ab_reports}")
                 fileReport.write("\n --------------------------------------------------------------------------------------------------------")
+                
                 if otx == 0:
                     fileReport.write("\n[+] No pulses reported on OTX")
                 else:
                     fileReport.write(f"\n[!] Count of pulses reported on OTX: {otx}")
                 fileReport.write("\n --------------------------------------------------------------------------------------------------------")
+                
                 if tb == 0:
-                    fileReport.write("\n[+] No judgment reported on Threatbook")
+                    fileReport.write("\n[+] No judgment reported on ThreaTBook")
                 else:
-                    fileReport.write(f"\n[!] Judgment reported on Threatbook: {tb_judgment}")
+                    fileReport.write(f"\n[!] Judgment reported on ThreaTBook: {tb_judgment}")
                 fileReport.write("\n ---------------------------------------------------------------------")
 
                 if isinstance(tb_ports, list):
-                    fileReport.write("\n[!] Top 10 ports listed on Threatbook, see link below for full list")
+                    fileReport.write("\n[!] Top 10 ports listed on ThreaTBook, see link below for full list")
                     max_ports = 10
                     ports_displayed = 0
                     for port in tb_ports:
@@ -320,53 +360,45 @@ class Summary:
                             ports_displayed += 1
                         else:
                             break
-
                 fileReport.write("\n --------------------------------------------------------------------------------------------------------")
-                if tf == 0:
-                    fileReport.write("\n[+] Not reported on ThreatFox")
-                else:
-                    fileReport.write("\n[!] Reported on ThreatFox")
-                fileReport.write("\n --------------------------------------------------------------------------------------------------------")
-                if gn == 0:
-                    fileReport.write('\n[+] Not reporteded by Greynoise')
-                else:
-                    fileReport.write("\n[!] Reported malicious on Greynoise")
-                fileReport.write("\n --------------------------------------------------------------------------------------------------------")
-                if url_scan == 0:
-                    fileReport.write('\n[+] Not reporteded as malicious by URL Scan report')
-                else:
-                    fileReport.write("\n[!] Reported as malicious by URL Scan Report")
-                fileReport.write("\n --------------------------------------------------------------------------------------------------------")
+                
                 if check_phish == 0:
                     fileReport.write('\n[+] Clean on Check Phish or Scan was unsuccessful')
                 else:
                     fileReport.write(f"\n[!] Reported on Check Phish: {check_phish_verdict}")
                 fileReport.write("\n ----------------------------------------------------------------------------------------------------------------------------")
-                fileReport.write("\n [+] Checking Blacklists")
+                
+                fileReport.write("\n[+] Checking Blacklists")
                 if dt == 0:
                     fileReport.write("\n[+] Not in the Duggy Tuxy blacklist.")
                 else:
                     fileReport.write("\n[!] Found in Duggy Tuxy blacklist")
-                fileReport.write("\n --------------------------------------------------------------------------------------------------------")
+                
                 if ipsum == 0:
-                    fileReport.write("\n[+] Not in IPsum's blacklists")
+                    fileReport.write("\n[+] Not in IPSUM's blacklists")
                 else:
-                    fileReport.write("\n[!] Found in IPsum's blacklists")
-                fileReport.write("\n --------------------------------------------------------------------------------------------------------")
+                    fileReport.write(f"\n[!] Found in: {ipsum_blacklists} IPSUM's blacklists")
+                
                 if rfd == 0:
                     fileReport.write("\n[+] Not in Redflag Domains")
                 else:
                     fileReport.write("\n[!] Found in Redflag Domains")
-                fileReport.write("\n --------------------------------------------------------------------------------------------------------")
+                
                 if c2 == 0:
                     fileReport.write("\n[+] Not in C2 Tracker")
                 else:
                     fileReport.write(f"\n[!] Found in C2 Tracker: {c2_fam} (Familly)")
+                
+                if tf == 0:
+                    fileReport.write("\n[+] Not in ThreaTFox")
+                else:
+                    fileReport.write("\n[!] Found on ThreaTFox")
                 fileReport.write("\n ----------------------------------------------------------------------------------------------------------------------------")
+                
                 fileReport.write("\n[+] Links:")
                 fileReport.write(f"\n\t- Virus Total: {vt_link}")
-                fileReport.write(f"\n\t- TreatBook: {tb_link}")
-                fileReport.write(f"\n\t- ThreatFox (To Malpedia): {tf_link}")
+                fileReport.write(f"\n\t- TreaTBook: {tb_link}")
+                fileReport.write(f"\n\t- ThreaTFox (To Malpedia): {tf_link}")
                 fileReport.write(f"\n\t- Check Phisk: {check_phish_link}")
                 fileReport.close()
                 
