@@ -11,6 +11,7 @@ from OTXv2 import OTXv2
 from OTXv2 import IndicatorTypes
 from bs4 import BeautifulSoup as bs
 import urllib.request
+import urllib3
 import ipinfo
 import csv
 from datetime import datetime, timezone
@@ -359,10 +360,49 @@ class Functions:
         
         except Exception as err:
             print('ThreatBook error: ', err)
-            # count = 0
-            # response['data']['summary']['judgments'] = []
-            # response['data']['ports'] = []
             THREATBOOK = [0, 0, 0]
+    
+
+    @staticmethod
+    def threatFox():
+        """_summary_
+        ThreatFox is a free platform from abuse.ch with the goal of sharing indicators of compromise (IOCs) associated with malware with the infosec community, 
+        AV vendors and threat intelligence providers.
+        """
+        try:
+            global THREATFOX
+            CHAR = string.ascii_lowercase
+
+            connect = urllib3.HTTPSConnectionPool('threatfox-api.abuse.ch', port=443, maxsize=50)
+            count = 0
+
+            if any(char in DOMAIN for char in CHAR):
+                ioc = DOMAIN
+            else:
+                ioc = DOMAIN_NAME_TO_IP
+
+            data = {'query': 'search_ioc', 'search_term': ioc}
+            data_json = json.dumps(data)
+            request = connect.request("POST", "/api/v1", body=data_json)
+            response = request.data.decode("utf-8", "ignore")
+            response_dict = json.loads(response)
+            status = response_dict.get('query_status')
+
+            if 'no_result' in status:
+                print('[+] Not found on ThreatFox')
+                count = count
+                THREATFOX = [0, 0]
+            else:
+                print(Color.ORANGE + '[!] Reported on ThreatFox' + Color.END)
+                keys = response_dict['data'][0]
+                for key, value in keys.items():
+                    print(f'\t- {key.capitalize()}: {value}')
+                count += 1
+                THREATFOX = [count, response_dict['data'][0]['malware_malpedia']]
+        
+        except Exception as err:
+            print('ThreatFox error', err)
+            THREATFOX = [0, 0]
 
     
     @staticmethod
@@ -408,8 +448,6 @@ class Functions:
 
         except Exception as err:
             print('Greynoise error: ', err)
-            # count = 0
-            # riot = False
             GREYNOISE = [0, 0]
             
 
@@ -424,7 +462,6 @@ class Functions:
             URL_SCAN_REPORT = f'/home/{USERNAME}/Documents/url_scan_report.json'
             
             config_file = Config_file(KEY_FILE)
-            # response = config_file.getURLScan(DOMAIN_NAME_TO_IP)
             config_file.getURLScan(DOMAIN_NAME_TO_IP)
             count = 0
 
@@ -551,9 +588,9 @@ class Functions:
             # Variables after the first curl command
             response_json = json.load(scan)
             job_id = response_json['jobID']
-            message = response_json['errorMessage']
 
             if job_id == 'none':
+                message = response_json['errorMessage']
                 print(Color.RED + '[!]', message + Color.END)
                 CHECKPHISH_COUNT = [0, 0, 0]
             else:
@@ -582,7 +619,6 @@ class Functions:
                     count += 1
 
                 CHECKPHISH_COUNT = [count, response_scan_json['insights'], response_scan_json['disposition']]
-                print(count, response_scan_json['insights'], response_scan_json['disposition'])
 
         except Exception as err:
             print('Check Phish error', err)
@@ -728,23 +764,24 @@ class Functions:
                     for row in reader:
                         if row['URL'] == DOMAIN or row['URL'] == DOMAIN_NAME_TO_IP or row['IP'] == DOMAIN_NAME_TO_IP:  
                             results.append(row)
-                
+    
                     if results:
                         for result in results:
-                            print('[!]', ioc, 'found in C2 Tracker list')
+                            print(Color.RED + '[!]', ioc, 'found in C2 Tracker list' + Color.ORANGE)
                             print('\t- Family :', result['Family'],
                                     '\n\t- URL :', result['URL'],
                                     '\n\t- IP :', result['IP'],
                                     '\n\t- First Seen :', result['FirstSeen'])
                             count += 1
+                            C2_COUNT = [count, result['Family']]
                         
                     else:
                         print('[+]', ioc , "Not found in C2 Tracker list")
-                        count = count 
+                        count = count
+                        C2_COUNT = [0, 0]
                         
                     c2_file.close()
     
-            C2_COUNT = [count, result['Family']]
             os.system(f'rm -rf /home/{USERNAME}/Documents/dump.csv')
         
         except Exception as err:
@@ -759,7 +796,6 @@ class Functions:
         IP address or domain present in internal IOCs
         """
         try:
-            # USERNAME = os.getenv("USER")
             tlp_file_name = f"/home/{USERNAME}/Downloads/tlp.csv"  # Use for tests
             # config_url = Config_urls()
             # url = config_url.getTLP()
@@ -800,9 +836,9 @@ class Functions:
                 ioc = DOMAIN_NAME_TO_IP
 
             result = Functions.tlpAmberCheck(ioc, csv_file_path)
-            # USERNAME = os.getenv("USER")
 
             if result:
+                print(Color.RED + '[!] Reported in internal IOCs' + Color.END)
                 print('\t- IOC :', result['domain'],
                             '\n\t- First seen :', result['entry_date'],
                             '\n\t- Expired :', result['expired'],
@@ -828,7 +864,7 @@ class Count:
     def count():
         try:
             return [WHOIS, VT_COUNT, DUGGY_COUNT, IPSUM_COUNT, CRIMINALIP_COUNTS, ABUSEIPDB_CONFIDENCE, OTX_COUNT, THREATBOOK, 
-                    GREYNOISE, REDFLAGDOMAINS_COUNT, TLP_COUNT, WHOIS_IPINFO, URLSCAN, CHECKPHISH_COUNT, C2_COUNT]
+                    GREYNOISE, REDFLAGDOMAINS_COUNT, TLP_COUNT, WHOIS_IPINFO, URLSCAN, CHECKPHISH_COUNT, C2_COUNT, THREATFOX]
         
         except Exception as err:
             print('Counting error: ', err)

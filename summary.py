@@ -46,6 +46,8 @@ class Summary:
             check_phish = Count.count()[13][0]
             check_phish_link = Count.count()[13][1]
             check_phish_verdict = Count.count()[13][2]
+            tf = Count.count()[14][0]
+            tf_link = Count.count()[14][1]
 
             # public blcklists
             dt = Count.count()[2]
@@ -81,17 +83,17 @@ class Summary:
                 print("[+] Not in the Duggy Tuxy blacklist")
                 agressivity = 2
             else:
-                print("[!] Found in Duggy Tuxy blacklist")
+                print(Color.RED + "[!] Found in Duggy Tuxy blacklist" + Color.END)
             if ipsum == 0:
                 print("[+] Not in IPsum's blacklists")
                 agressivity = 2
             else:
-                print("[!] Found in IPsum's blacklists")
+                print(Color.RED + "[!] Found in IPsum's blacklists" + Color.END)
             if rfd == 0:
                 print("[+] Not in Redflag Domains")
                 agressivity = 2
             else:
-                print("[!] Found in Redflag Domains")
+                print(Color.RED + "[!] Found in Redflag Domains" + Color.END)
             if c2 == 0:
                 print("[+] Not in C2 Tracker")
                 agressivity = 2
@@ -183,7 +185,7 @@ class Summary:
             print("--------------------------------------------------------------------------------------------------------")
         
             if isinstance(tb_ports, list):
-                print("[!] Top 10 ports listed on Threatbook, see the links below for the full list")
+                print("[!] Top 10 ports listed on Threatbook, see the links above for the full list")
                 max_ports = 10
                 ports_displayed = 0
                 for port in tb_ports:
@@ -195,6 +197,12 @@ class Summary:
                         break
             else:
                 print("[+] No opened ports on Threatbook")
+            print("--------------------------------------------------------------------------------------------------------")
+
+            if tf == 0:
+                print("[+] Not reported on ThreatFox")
+            else:
+                print(Color.ORANGE + "[!] Reported on ThreatFox" + Color.END)
             print("--------------------------------------------------------------------------------------------------------")
 
             if gn == 0:
@@ -302,7 +310,7 @@ class Summary:
                 fileReport.write("\n ---------------------------------------------------------------------")
 
                 if isinstance(tb_ports, list):
-                    fileReport.write("\n[!] Top 10 ports listed on Threatbook, see link above for full list")
+                    fileReport.write("\n[!] Top 10 ports listed on Threatbook, see link below for full list")
                     max_ports = 10
                     ports_displayed = 0
                     for port in tb_ports:
@@ -312,6 +320,12 @@ class Summary:
                             ports_displayed += 1
                         else:
                             break
+
+                fileReport.write("\n --------------------------------------------------------------------------------------------------------")
+                if tf == 0:
+                    fileReport.write("\n[+] Not reported on ThreatFox")
+                else:
+                    fileReport.write("\n[!] Reported on ThreatFox")
                 fileReport.write("\n --------------------------------------------------------------------------------------------------------")
                 if gn == 0:
                     fileReport.write('\n[+] Not reporteded by Greynoise')
@@ -352,6 +366,7 @@ class Summary:
                 fileReport.write("\n[+] Links:")
                 fileReport.write(f"\n\t- Virus Total: {vt_link}")
                 fileReport.write(f"\n\t- TreatBook: {tb_link}")
+                fileReport.write(f"\n\t- ThreatFox (To Malpedia): {tf_link}")
                 fileReport.write(f"\n\t- Check Phisk: {check_phish_link}")
                 fileReport.close()
                 

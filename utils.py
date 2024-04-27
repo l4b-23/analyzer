@@ -99,7 +99,6 @@ class Check_INPUT:
                         print("[+] Domain used: " + DOMAIN)
                         if DOMAIN_NAME_TO_IP:
                             print("[+] IP associated with the domain and used: " + DOMAIN_NAME_TO_IP)
-                            # DOMAIN_NAME_TO_IP = DOMAIN_NAME_TO_IP
                             return DOMAIN_NAME_TO_IP
                         else:
                             print("[+] Domain used: " + DOMAIN +" but couldn't be associated with an IP")
@@ -194,7 +193,8 @@ class Config_file:
         key = {"accept": "application/json","key": self.greynoise_key}
         response = requests.get(url, headers=key)
         return response.json()
-    
+
+
     def getURLScan(self, domain_name_to_ip):
         CHAR = string.ascii_lowercase
         executed = False
@@ -216,7 +216,8 @@ class Config_file:
         else:
             executed = False
             print(Color.RED + '[!] The domain name is invalid, an IP address has probably been used' + Color.END)
-    
+
+
     def getCheckPhish(self):
         return self.check_phish_key
 
@@ -228,6 +229,7 @@ class Config_urls:
         self.ipsum_url = "https://raw.githubusercontent.com/stamparm/ipsum/master/ipsum.txt"
         self.redflagDomains_url = "https://dl.red.flag.domains/red.flag.domains.txt"
         self.tlp_url = ""
+
 
     def getDuggyTuxy(self):
         return self.duggy_tuxy_url
@@ -243,7 +245,3 @@ class Config_urls:
 
     def getTLP(self):
         return self.tlp_url
-    
-
-    def getC2Tracker():
-        os.system(f'curl https://tracker.viriback.com/dump.php -o /home/{USERNAME}/Documents/dump.csv 2>/dev/null')

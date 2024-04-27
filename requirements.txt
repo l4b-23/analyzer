@@ -12,6 +12,7 @@ OTXv2
 PyPDF2
 ipinfo
 netlas
+urllib3
 
 
 # Pay attention to "netlas" depending on your operating system:
