@@ -7,8 +7,8 @@
 
 
 ## In run:
-- [ip 2 location](https://www.ip2location.io/)
-- [ip Info](https://ipinfo.io/)
+- [IP 2 location](https://www.ip2location.io/)
+- [IP Info](https://ipinfo.io/)
 - [Virus Total](https://www.virustotal.com/gui/home/search)
 - [Criminal IP](https://www.criminalip.io/en)
 - [Abuse IP DB](https://www.abuseipdb.com/)
@@ -153,3 +153,8 @@ analyzer
 ```
 
 ## Coming soon:
+- [IP quality score](https://www.ipqualityscore.com/)
+- [ShadowWhisperer / BlockLists](https://github.com/ShadowWhisperer/BlockLists)
+- [Firehol / blocklist-ipsets](https://github.com/firehol/blocklist-ipsets?tab=readme-ov-file)
+- [Botvrij](https://botvrij.eu/)
+- Private scans performed on URLSCAN

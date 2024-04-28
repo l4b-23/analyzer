@@ -16,9 +16,7 @@ import ipinfo
 import csv
 from datetime import datetime, timezone
 from utils import *
-# import pprint
-# import json
-# import requests
+
 # import netlas
 
 
@@ -30,7 +28,7 @@ DOMAIN_NAME_TO_IP = Check_INPUT.checkInput()
 
 # Analysis functions:
 class Functions:
-    # [+] Checking public Whois sources
+    # Checking public Whois sources
     @staticmethod
     def ip2Location():
         """_summary_
@@ -43,11 +41,12 @@ class Functions:
             response = config_file.getIP2Location(DOMAIN_NAME_TO_IP)
 
             print('\t- Country code:', response['country_code'],
-                    '\n\t- Country name:', response['country_name'],
-                    '\n\t- Time zone:', response['time_zone'],
-                    '\n\t- Categorized as public proxy:', response['is_proxy'])
+                '\n\t- Country name:', response['country_name'],
+                '\n\t- Time zone:', response['time_zone'],
+                '\n\t- Categorized as public proxy:', response['is_proxy'])
             
             is_proxy = str(response['is_proxy'])
+
             WHOIS = [response['country_name'], is_proxy]
         
         except Exception as err:
@@ -71,15 +70,16 @@ class Functions:
 
             if DOMAIN_NAME_TO_IP:
                 print('\t- Organisation/ASN:', response.org,
-                        '\n\t- City:', response.city,
-                        '\n\t- Region:', response.region,
-                        '\n\t- Continent:', response.continent['name'],
-                        '\n\t- Continent code:', response.continent['code'],
-                        '\n\t- Is European:', response.isEU,
-                        '\n\t- GPS coordinates:', response.loc,
-                        '\n\t- Time zone:', response.timezone)
-
+                    '\n\t- City:', response.city,
+                    '\n\t- Region:', response.region,
+                    '\n\t- Continent:', response.continent['name'],
+                    '\n\t- Continent code:', response.continent['code'],
+                    '\n\t- Is European:', response.isEU,
+                    '\n\t- GPS coordinates:', response.loc,
+                    '\n\t- Time zone:', response.timezone)
+                
                 WHOIS_IPINFO = [response.country, response.org, response.continent['name'], response.region]
+
             else:
                 print(Color.RED + "[!] no valid IP address found" + Color.END)
                 pass
@@ -110,7 +110,7 @@ class Functions:
     #         print('Netlas', err)
 
 
-    # [+] Checking public CTI sources
+    # Checking public CTI sources
     @staticmethod
     def virusTotal():
         """_summary_
@@ -134,16 +134,13 @@ class Functions:
 
                 if response['positives'] != 0:
                     print('[+] Positives responses found: ' )
-                    for key in response['scans']:
-                        if response['scans'][key]['detected'] == True:
+                    for key, value in response['scans'].items():
+                        if value['detected'] or (value['result'] != 'clean site' and value['result'] != 'unrated site'):
                             count += 1
-                            char_to_remove = ["{detected: ", "}"]
-                            string_to_display = str(response['scans'][key]).replace("'", '')
-                            for char in char_to_remove:
-                                string_to_display = string_to_display.replace(char, "")
-                            print("\t- ", key, ":", string_to_display)
-
+                            result = value['result']
+                            print(f"\t- {key}: {result}")
                     print(Color.BLUE + "[+] Number of detections: ", str(count) + Color.END)
+
                     VT_COUNT = [count, response['total'], response['permalink']]
 
         except Exception as err:
@@ -166,52 +163,70 @@ class Functions:
             if response['is_malicious'] == True:
                 count += 1
                 print("[+] Malicious IP:", response['is_malicious'],
-                        '\n[+] VPN:',response['is_vpn'],
-                        '\n[+] Remote access:', response['can_remote_access'],
-                        '\n[+] Remote port:', response['remote_port'],
-                        '\n[+] IDS:', response['ids'])
+                    '\n[+] VPN:',response['is_vpn'],
+                    '\n[+] Remote access:', response['can_remote_access'])
+                print("[+] Remote port:",
+                    "\n\t- count:", len(response['remote_port']['data']),
+                    "\n\t- data:")
+
+                # Display remote port(s) info
+                for port_info in response['remote_port']['data']:
+                    print("\t\t- socket_type:", port_info['socket_type'],
+                        "\n\t\t- port:", port_info['port'],
+                        "\n\t\t- protocol:", port_info['protocol'],
+                        "\n\t\t- product_name:", port_info['product_name'],
+                        "\n\t\t- product_version:", port_info['product_version'],
+                        "\n\t\t- has_vulnerability:", port_info['has_vulnerability'],
+                        "\n\t\t- confirmed_time:", port_info['confirmed_time'], '\n')
+                
+                # Display IDS info
+                print("[+] IDS:"
+                    "\n\t- count:", len(response['ids']['data']),
+                    "\n\t- data:")
+                for id_info in response['ids']['data']:
+                    print("\t\t- classification:", id_info['classification'],
+                        "\n\t\t- url:", id_info['url'],
+                        "\n\t\t- message:", id_info['message'],
+                        "\n\t\t- source_system:", id_info['source_system'],
+                        "\n\t\t- confirmed_time:", id_info['confirmed_time'], '\n')
 
                 if response['current_opened_port']['count'] != 0:
                     print('[+] Count of opened ports:', response['current_opened_port']['count'])
-                    ports_count = 0
+                    ports_count = response['current_opened_port']['count']
 
-                    print('\t- Ports with vulnerabilities:')
-                    for key in range(len(response['current_opened_port']['data'])):
-                        if (response['current_opened_port']['count'] <= 10 or response['current_opened_port']['count'] > 10):
-                            if response['current_opened_port']['data'][key]['has_vulnerability'] == True:
-                                print('\t\t-',
-                                    response['current_opened_port']['data'][key]['socket_type'],
-                                    response['current_opened_port']['data'][key]['port'],
-                                    response['current_opened_port']['data'][key]['protocol'],
-                                    response['current_opened_port']['data'][key]['product_name'],
-                                    response['current_opened_port']['data'][key]['product_version'],
-                                    response['current_opened_port']['data'][key]['has_vulnerability'])
-                                ports_count = ports_count + 1
-                                if ports_count == 8:
-                                    break
-
-                if response['vulnerability']['count'] != 0:
-                    print('[+] Count of vulnerabilities founded:',response['vulnerability']['count'])
-                    char_to_remove = ["{", "}", "[", "]"]
-                    vuln_count = 0
-
-                    for key in range(len(response['vulnerability']['data'])):
-                        string_to_display = str(response['vulnerability']['data'][key]['ports']).replace("'", '')
-                        if (response['vulnerability']['count'] <= 10 or response['vulnerability']['count'] > 10):
-                            for char in char_to_remove:
-                                string_to_display = string_to_display.replace(char, "")
-                            print('\t-',
-                                response['vulnerability']['data'][key]['cve_id'],
-                                response['vulnerability']['data'][key]['cvssv2_score'],
-                                response['vulnerability']['data'][key]['cvssv3_score'],
-                                response['vulnerability']['data'][key]['product_version'],
-                                response['vulnerability']['data'][key]['product_vendor'])
-                            vuln_count = vuln_count + 1
-                            if vuln_count == 10:
+                    print('\t- Top 10 Ports with vulnerabilities:')
+                    for port_info in response['current_opened_port']['data']:
+                        if port_info['has_vulnerability']:
+                            print('\t\t-',
+                                port_info['socket_type'],
+                                port_info['port'],
+                                port_info['protocol'] if port_info['protocol'] else "None",
+                                port_info['product_name'],
+                                port_info['product_version'],
+                                'Vulnerable: ', port_info['has_vulnerability'])
+                            ports_count = ports_count + 1
+                            if ports_count == 10:
                                 break
 
+                # Display vuln info
+                if response['vulnerability']['count'] != 0:
+                    print('[+] Count of vulnerabilities founded:',response['vulnerability']['count'],
+                        '\n[+] Here are the top 10:')
+                    vuln_count = 0
+
+                    for vuln in response['vulnerability']['data']:
+                        print('\t-',
+                            vuln['cve_id'],
+                            vuln['cvssv2_score'],
+                            vuln['cvssv3_score'],
+                            vuln['product_version'],
+                            vuln['product_vendor'])
+                        vuln_count = vuln_count + 1
+                        if vuln_count == 10:
+                            break
+
                 if response['ip_category']['count'] != 0:
-                    print('[+] count of IP category: ', response['ip_category']['count'],
+                    print('[+] Count of IP category: ', response['ip_category']['count'],
                             '\n[+] IP category:')
                     for key in range(len(response['ip_category']['data'])):
                         print('\t-', response['ip_category']['data'][key]['type'])
@@ -220,8 +235,7 @@ class Functions:
                 count == count
                 print('[+]', DOMAIN_NAME_TO_IP, 'Not found in Criminal IP')
             
-            CRIMINALIP_COUNTS = [count, response['current_opened_port']['count'], response['vulnerability']['count'], 
-                                 response['ip_category']['count']]
+            CRIMINALIP_COUNTS = [count, response['current_opened_port']['count'], response['vulnerability']['count'], response['ip_category']['count']]
         
         except Exception as err:
             print('Criminal IP error:', err)
@@ -239,9 +253,8 @@ class Functions:
             config_file = Config_file(KEY_FILE)
             response = config_file.getAbuseIPDB(DOMAIN_NAME_TO_IP)
 
-            print('[+] Count of reports:', response['data']['totalReports'])
-            print(
-                '\t- Whiteliested:', response['data']["isWhitelisted"],
+            print('[+] Count of reports:', response['data']['totalReports'],
+                '\n\t- Whiteliested:', response['data']["isWhitelisted"],
                 '\n\t- Confidence in %:', response['data']["abuseConfidenceScore"],
                 '\n\t- Country code:', response['data']["countryCode"], 
                 '\n\t- ISP:', response['data']["isp"], 
@@ -272,7 +285,7 @@ class Functions:
             response = handler.get_indicator_details_full(IndicatorTypes.IPv4, Check_INPUT.checkInput())
 
             print("[+] Reputation:", response['general']['reputation'],
-                    "\n[+] Count of pulses reported:", response['general']['pulse_info']['count'])
+                "\n[+] Count of pulses reported:", response['general']['pulse_info']['count'])
             
             OTX_COUNT = response['general']['pulse_info']['count']
             
@@ -280,23 +293,18 @@ class Functions:
                 print("[+] Last puple containing tags: ")
                 tag_count = 0
 
-                for key in range(len(response['general']['pulse_info']['pulses'])):
-                    tags = str(response['general']['pulse_info']['pulses'][key]['tags'])
-                    char_to_remove = ["[", "]", "'"]
-                    if response['general']['pulse_info']['pulses'][key]['tags'] != []:
-                        for char in char_to_remove:
-                            tags = tags.replace(char, '')
-                        print(
-                            '\t- Description:', response['general']['pulse_info']['pulses'][key]['description'],
-                            '\n\t- Last update:', response['general']['pulse_info']['pulses'][key]['modified'],
-                            '\n\t- Tags:',tags,
-                            '\n')
-                        if tag_count == 1:
-                            break
-                        tag_count = tag_count + 1
+            for pulse in response['general']['pulse_info']['pulses']:
+                tags = ", ".join(pulse.get('tags', []))
+                print('\t- Description:', pulse['description'],
+                    '\n\t- Last update:', pulse['modified'],
+                    '\n\t- Tags:', tags,'\n')
+                
+                if tag_count == 1:
+                    break
+                tag_count += 1
         
         except Exception as err:
-            print('AlienVault error: ', err)
+            print('Alien Vault error: ', err)
             OTX_COUNT = 0
 
 
@@ -317,11 +325,12 @@ class Functions:
             if any(char in DOMAIN for char in CHAR):
                 executed = True
                 print('\t- ASN number:', response['data']['asn']['number'],
-                        '\n\t- ASN rank:', response['data']['asn']['rank'],
-                        '\n\t- Judgment:', response['data']['summary']['judgments'],
-                        '\n\t- Is whitelisted:', response['data']['summary']['whitelist'],
-                        f'\n\t- Link: https://threatbook.io/domain/{DOMAIN}',
-                        '\n\t- Ports:')
+                    '\n\t- ASN rank:', response['data']['asn']['rank'],
+                    '\n\t- Judgment:', response['data']['summary']['judgments'],
+                    '\n\t- Is whitelisted:', response['data']['summary']['whitelist'],
+                    f'\n\t- Link: https://threatbook.io/domain/{DOMAIN}',
+                    '\n\t- Top 10 ports:')
+                
                 if isinstance(response['data']['ports'], list):
                     max_ports = 10
                     ports_displayed = 0
@@ -336,11 +345,12 @@ class Functions:
             else:
                 executed = False
                 print('\t- ASN number:', response['data']['asn']['number'],
-                        '\n\t- ASN rank:', response['data']['asn']['rank'],
-                        '\n\t- Judgment:', response['data']['summary']['judgments'],
-                        '\n\t- Is whitelisted:', response['data']['summary']['whitelist'],
-                        f'\n\t- Link: https://threatbook.io/ip/{DOMAIN_NAME_TO_IP}',
-                        '\n\t- Ports:')
+                    '\n\t- ASN rank:', response['data']['asn']['rank'],
+                    '\n\t- Judgment:', response['data']['summary']['judgments'],
+                    '\n\t- Is whitelisted:', response['data']['summary']['whitelist'],
+                    f'\n\t- Link: https://threatbook.io/ip/{DOMAIN_NAME_TO_IP}',
+                    '\n\t- Top 10 ports:')
+                
                 if isinstance(response['data']['ports'], list):
                     max_ports = 10
                     ports_displayed = 0
@@ -359,7 +369,7 @@ class Functions:
                 THREATBOOK = [count, str(response['data']['summary']['judgments']), response['data']['ports'], tb_link]
         
         except Exception as err:
-            print('ThreatBook error: ', err)
+            print('Threat Book error: ', err)
             THREATBOOK = [0, 0, 0]
     
 
@@ -398,10 +408,11 @@ class Functions:
                 for key, value in keys.items():
                     print(f'\t- {key.capitalize()}: {value}')
                 count += 1
+
                 THREATFOX = [count, response_dict['data'][0]['malware_malpedia']]
         
         except Exception as err:
-            print('ThreatFox error', err)
+            print('Threat Fox error', err)
             THREATFOX = [0, 0]
 
     
@@ -421,17 +432,17 @@ class Functions:
             
             if message in response['message']:
                 print('IP not observed scanning the internet or contained in RIOT data set',
-                      '\n\t- Present in RIOT DB:', response['riot'],
-                      '\n\t- Scanning internet in the last 90 days:', response['noise'])
+                    '\n\t- Present in RIOT DB:', response['riot'],
+                    '\n\t- Scanning internet in the last 90 days:', response['noise'])
 
                 GREYNOISE = [count, riot]
 
             else:
                 print('\t- Classification:', response['classification'],
-                            '\n\t- Scanning internet in the last 90 days:', response['noise'],
-                            '\n\t- Present in RIOT DB:', response['riot'],
-                            '\n\t- Last seen:', response['last_seen'],
-                            '\n\t- Link:',response['link'])
+                    '\n\t- Scanning internet in the last 90 days:', response['noise'],
+                    '\n\t- Present in RIOT DB:', response['riot'],
+                    '\n\t- Last seen:', response['last_seen'],
+                    '\n\t- Link:',response['link'])
             
                 if 'benign' in response['classification']:
                         count = count+1
@@ -455,7 +466,7 @@ class Functions:
     def urlScan():
         """_summary_
         Check URL Scan and return the responses in a dedicated file in the reports directory.
-        Improvement needed
+        Needs improvement
         """
         try:
             global URLSCAN
@@ -468,7 +479,13 @@ class Functions:
             if os.path.exists(URL_SCAN_REPORT):
                 with open(URL_SCAN_REPORT, 'r') as url_scan_report:
                     data = json.load(url_scan_report)
-                    if 'data' in data and 'requests' in data['data']:
+                    if 'message' in data and data['message'] == 'Scan is not finished yet':
+                        print(Color.ORANGE + '[!] Scan is not finished yet' + Color.END)
+                        URLSCAN = count
+                        os.system(f'rm -rf {URL_SCAN_REPORT}')
+                        return
+                        
+                    elif 'data' in data and 'requests' in data['data']:
                         requests_data = data['data']['requests']
                         if requests_data:
                             key = 0  # Use index 0 to access the first (and only) entry
@@ -484,13 +501,13 @@ class Functions:
                                 headers = requests_data[key]['response']['response']['headers']
                                 for header, value in headers.items():  # Loop in Headers
                                     print(f'\t- {header}: {value}')
-                                print('[+] Response:')
-                                print('\t- RemotePort:', requests_data[key]['response']['response']['remotePort'],
+                                print('[+] Response:',
+                                    '\n\t- RemotePort:', requests_data[key]['response']['response']['remotePort'],
                                     '\n\t- Protocol:', requests_data[key]['response']['response']['protocol'])
                         else:
-                            print('No data in requests')
+                            print('[!] No data in requests')
                     else:
-                        print('No key "data" or "requests"')
+                        print('[!] No key "data" or "requests"')
 
                     print('[+] Cookies and links found:')
                     if 'data' in data:
@@ -500,7 +517,7 @@ class Functions:
                                 for key, value in link.items():
                                     print(f'\t\t- {key}: {value}')
                         else:
-                            print('No links found')
+                            print('[!] No links')
                             
                         if 'cookies' in data['data']:
                             print('\t- Cookies:')
@@ -512,9 +529,9 @@ class Functions:
                                 for key, value in cookie.items():
                                     print(f'\t\t- {key}: {value}')
                         else:
-                            print('No cookies found')
+                            print('[!] No cookies')
                     else:
-                        print('no key data')
+                        print('[!] No data')
 
                     print('[+] Domain Infos:')
                     if 'lists' in data:
@@ -522,7 +539,7 @@ class Functions:
                             if key != 'certificates':
                                 print('\t- {}: {}'.format(key.capitalize(), ', '.join(map(str, value))))
                     else:
-                        print('no key in first loop')
+                        print('[!] No lists')
 
                     if 'certificates' in data['lists']:
                         print('[+] Certificates:')
@@ -537,7 +554,7 @@ class Functions:
                                     print(f'\t\t- {key.capitalize()}: {value}')
 
                     else:
-                        print('no key lists')
+                        print('[!] No certificates in lists')
                     
                     if 'verdicts' in data:
                         print('[+] URL Scan Verdict: ')
@@ -551,7 +568,10 @@ class Functions:
 
                 url_scan_report.close()
                 os.system(f'rm -rf {URL_SCAN_REPORT}')
-          
+
+            else:
+                print(f'[!] {URL_SCAN_REPORT} does not exist')
+
             URLSCAN = count
 
         except Exception as err:
@@ -625,7 +645,7 @@ class Functions:
             CHECKPHISH_COUNT = [0, 0, 0]
 
 
-    # [+] Checking public Blacklists
+    # Checking public Blacklists
     @staticmethod
     def duggyTuxy():
         """_summary_
@@ -652,7 +672,7 @@ class Functions:
             DUGGY_COUNT = count
 
         except Exception as err:
-            print('DuggyTuxy error: ', err)
+            print('Duggy Tuxy error: ', err)
             DUGGY_COUNT = 0
 
 
@@ -686,7 +706,6 @@ class Functions:
                         print(f'[!] {DOMAIN_NAME_TO_IP} founded in:', int(blacklists_count),'blacklists')
                         blacklisted.close()
                         os.system('rm -rf IPSum.txt')
-                        print
 
             else:
                 count == count
@@ -730,11 +749,12 @@ class Functions:
                             count == count
                             redflag.close()
             else:
-                print('[+] No domain name provided')    
+                print('[+] No domain name provided')  
+
             REDFLAGDOMAINS_COUNT = count
 
         except Exception as err:
-            print('RedFlag error: ', err)
+            print('Red Flag error: ', err)
             REDFLAGDOMAINS_COUNT = 0
 
 
@@ -789,7 +809,7 @@ class Functions:
             C2_COUNT = [0, 0]
 
 
-    # [+] Checking internal IOCs
+    # Checking internal IOCs
     @staticmethod
     def tlpAmberCheck(ioc, tlp_url):
         """_summary_
@@ -815,7 +835,7 @@ class Functions:
                 return None
         
         except Exception as err:
-            print('CheckTLP error: ', err)
+            print('Check TLP error: ', err)
 
 
     @staticmethod
@@ -852,7 +872,7 @@ class Functions:
             TLP_COUNT = count
 
         except Exception as err:
-            print('TLPAmber error: ', err)
+            print('TLP Amber error: ', err)
             TLP_COUNT = 0
 
 

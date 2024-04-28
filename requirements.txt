@@ -6,13 +6,21 @@
 # - Add your absolute path ~/.local (example): /home/$USER/.local/lib/python3.11/site-packages 
 
 
-beautifulsoup4
-requests
 OTXv2
-PyPDF2
+beautifulsoup4
+urllib
+urllib3
 ipinfo
 netlas
-urllib3
+csv
+json
+os
+socket
+re
+requests
+string
+datetime
+time
 
 
 # Pay attention to "netlas" depending on your operating system:

@@ -63,6 +63,7 @@ class Summary:
             tlp = Count.count()[10]
 
 
+
             # ------------------------------------------------------------------------------------------
             """_summary_
             Calculation of the final score
@@ -134,6 +135,7 @@ class Summary:
             final_score = (agressivity + malicious + reported) / 3
 
 
+
             # ------------------------------------------------------------------------------------------
             """_summary_
             Console Report
@@ -148,7 +150,7 @@ class Summary:
             if vt == 0:
                 print('[+] Clean on Virus Total')
             else:
-                print("[!] Detected on Virus Total",
+                print(Color.RED + "[!] Detected on Virus Total" + Color.END,
                       '\n\t- Count of detections:', vt,
                       '\n\t- Count of Antivirus scanned:', vt_total_scanners)
             print("--------------------------------------------------------------------------------------------------------")
@@ -160,7 +162,7 @@ class Summary:
             if ipsum == 0:
                 print("[+] Not in IPSUM's blacklists")
             else:
-                print(Color.RED + f"[!] Found in: {ipsum_blacklists} IPSUM's blacklists" + Color.END)
+                print(Color.RED + "[!] Found in IPSUM's blacklists: " + Color.END, f"{ipsum_blacklists}")
             if rfd == 0:
                 print("[+] Not in Redflag Domains")
             else:
@@ -168,11 +170,11 @@ class Summary:
             if c2 == 0:
                 print("[+] Not in C2 Tracker")
             else:
-                print(Color.RED + f"[!] Found in C2 Tracker: {c2_fam} (Familly)" + Color.END)
+                print(Color.RED + f"[!] Found in C2 Tracker: " + Color.END, f"{c2_fam} (Familly)")
             if tf == 0:
                 print("[+] Not in ThreaTFox")
             else:
-                print(Color.ORANGE + "[!] Found in ThreaTFox" + Color.END)
+                print(Color.RED + "[!] Found in ThreaTFox" + Color.END)
             if tlp == 0:
                 print("[+] Not in internal IOCs")
             else:
@@ -184,7 +186,7 @@ class Summary:
             if ci == 0:
                 print('[+] Not Considered malicious on Criminal IP')
             else:
-                print("[!] Considered malicious on Criminal IP",
+                print(Color.RED + "[!] Considered malicious on Criminal IP" + Color.END,
                     "\n\t- Count of opened ports:",ci_port_count,
                     "\n\t- Count of vulnerability founded:",ci_vuln_count,
                     "\n\t- Count of IP category:",ci_cat_count)
@@ -192,13 +194,12 @@ class Summary:
             if gn == 0:
                 print('[+] Not Considered malicious on Greynoise')
             else:
-                print("[!] Considered malicious on Greynoise")
-            print("--------------------------------------------------------------------------------------------------------")
+                print(Color.RED + "[!] Considered malicious on Greynoise" + Color.END)
             
             if url_scan == 0:
                 print('[+] Not Considered malicious on URL Scan report')
             else:
-                print("[!] Considered malicious on URL Scan report")
+                print(Color.RED + "[!] Considered malicious on URL Scan report" + Color.END)
             print("--------------------------------------------------------------------------------------------------------")
             print(f'[!] Malicious: {malicious}')
             print("--------------------------------------------------------------------------------------------------------")
@@ -206,25 +207,22 @@ class Summary:
             if ab_reports == 0:
                 print("[+] Not found on AbuseIPDB")
             else:
-                print("[!] Reported on AbuseIPDB",
+                print(Color.RED + "[!] Reported on AbuseIPDB" + Color.END,
                     "\n\t- Confidence index:",ab_cnfidence, '%',
                     "\n\t- Count of reports:",ab_reports)
-            print("--------------------------------------------------------------------------------------------------------")
 
             if otx == 0:
                 print("[+] No pulses reported on OTX")
             else:
-                print(f"[!] Count of pulses reported on OTX: {otx}")
-            print("--------------------------------------------------------------------------------------------------------")
+                print(Color.RED + "[!] Pulses reported on OTX: " + Color.END, f"{otx}")
 
             if tb == 0:
                 print("[+] No judgment reported on ThreaTBook")
             else:
-                print(f"[!] Judgment reported on ThreaTBook: {tb_judgment}")
-            print("--------------------------------------------------------------------------------------------------------")
+                print(Color.RED + "[!] Judgment reported on ThreaTBook: " + Color.END, f"{tb_judgment}")
         
             if isinstance(tb_ports, list):
-                print("[!] Top 10 ports reported on ThreaTBook, see the links above for the full list")
+                print(Color.RED + "[!] Ports reported on ThreaTBook, see the links above for the full list" + Color.END)
                 max_ports = 10
                 ports_displayed = 0
                 for port in tb_ports:
@@ -241,23 +239,24 @@ class Summary:
             if check_phish == 0:
                 print('[+] Clean on Check Phish or Scan was unsuccessful')
             else:
-                print(f"[!] Reported on Check Phish: {check_phish_verdict}")
+                print(Color.RED + "[!] Reported on Check Phish: " + Color.END, f"{check_phish_verdict}")
             print("--------------------------------------------------------------------------------------------------------")
             print(f'[!] Reported: {reported}')
             print("--------------------------------------------------------------------------------------------------------")
 
             print("[!] General note:", round(final_score, 2))
-            if round(final_score, 2) <= 2:
+            if round(final_score, 2) <= 3:
                 print(Color.GREEN + '[!] Low IP' + Color.END)
 
-            if (round(final_score, 2) > 2 and round(final_score, 2) < 5):
+            if (round(final_score, 2) > 3 and round(final_score, 2) < 5.99):
                 print(Color.ORANGE + '[!] Medium IP' + Color.END)
 
-            if (round(final_score, 2) >= 5 and round(final_score, 2) < 8):
+            if (round(final_score, 2) >= 5.99 and round(final_score, 2) < 7.99):
                 print(Color.RED + '[!] High IP' + Color.END)
 
             if round(final_score, 2) >= 8:
                 print(Color.RED + '[!] Critical IP' + Color.END)
+
 
 
             # ------------------------------------------------------------------------------------------

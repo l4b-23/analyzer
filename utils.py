@@ -13,7 +13,6 @@ import re
 import string
 import requests
 import json
-# import PyPDF2
 
 
 # Colors:
@@ -25,8 +24,22 @@ class Color:
     END = '\033[0m'
 
 
+class Banner:
+    @staticmethod
+    def banner():
+        print("                                                                         ") 
+        print(Color.BLUE + "\t\t     ___             __                   "   + Color.END)
+        print(Color.BLUE + "\t\t    / _ | ___  ___ _/ /_ _____ ___ ____   "   + Color.END)
+        print(Color.BLUE + "\t\t   / __ |/ _ \/ _ `/ / // /_ // -_) __/   "   + Color.END)
+        print(Color.BLUE + "\t\t  /_/ |_/_//_/\_,_/_/\_, //__/\__/_/      "   + Color.END)
+        print(Color.BLUE + "\t\t                    /___/                 "   + Color.END)
+        print("                                                                         ")
+        print(Color.BLUE + "\t\t                                         V2 " + Color.END)
+
+
 # Constants:
 try:
+    Banner.banner()
     USERNAME = os.getenv("USER")
     KEY_FILE = f"/home/{USERNAME}/keys_file.json"
     CONFIG_FILE = open(KEY_FILE, "r")
@@ -57,7 +70,7 @@ class Api:
                 CONFIG_FILE.close()
 
         except Exception as err:
-            print('APIConfig error: ', err)
+            print('API config error: ', err)
 
 
 class Directory:
@@ -80,6 +93,7 @@ class Check_INPUT:
         """_summary_
         Check whether the input is a domain or an IP address.
         Returns the IP address of the domain or retains the IP address entered in "input".
+        Needs improvement
         """
         global IP
         CHAR = string.ascii_lowercase
@@ -97,9 +111,11 @@ class Check_INPUT:
                         global DOMAIN_NAME_TO_IP
                         DOMAIN_NAME_TO_IP = socket.gethostbyname(DOMAIN)
                         print("[+] Domain used: " + DOMAIN)
+
                         if DOMAIN_NAME_TO_IP:
                             print("[+] IP associated with the domain and used: " + DOMAIN_NAME_TO_IP)
                             return DOMAIN_NAME_TO_IP
+                        
                         else:
                             print("[+] Domain used: " + DOMAIN +" but couldn't be associated with an IP")
 

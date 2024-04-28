@@ -14,6 +14,7 @@ if __name__ == '__main__':
     """_summary_
     """
     try:
+        Banner.banner()
         print(Color.ORANGE + "[+] Check API config file" + Color.END)
         Api.apiConfig()
         print("--------------------------------------------------------------------------------------------------------")
@@ -28,11 +29,9 @@ if __name__ == '__main__':
         print(Color.BLUE + "[+] Check ip 2 Location" + Color.END)
         Functions.ip2Location()
 
-        # print("--------------------------------------------------------------------------------------------------------")
         print(Color.BLUE + "[+] Check ip info" + Color.END)
         Functions.ipInfo()
 
-        # # print("--------------------------------------------------------------------------------------------------------")
         # # print(Color.BLUE + "[+] Netlas" + Color.END)
         # # Functions.netlas()
 
@@ -56,8 +55,8 @@ if __name__ == '__main__':
         Functions.alienVault()
         print("--------------------------------------------------------------------------------------------------------")
 
-        print(Color.BLUE + "[+] Treatbook" + Color.END)
-        print(Color.ORANGE + "[!] Treatbook with the free API = 50 requests per day" + Color.END)
+        print(Color.BLUE + "[+] TreatBook" + Color.END)
+        print(Color.ORANGE + "[!] TreatBook with the free API = 50 requests per day" + Color.END)
         Functions.threatBook()
         print("--------------------------------------------------------------------------------------------------------")
 
@@ -79,25 +78,22 @@ if __name__ == '__main__':
         print("--------------------------------------------------------------------------------------------------------")
 
         print(Color.BLUE + "[+] Check Phish Scan" + Color.END)
-        print(Color.ORANGE + "[!] Check Phish Scan with the free API = 25 scans requests per day" + Color.END)
+        print(Color.ORANGE + "[!] Check Phish Scan with the free API = 15 scans requests per day" + Color.END)
         Functions.checkPhish()
         print("--------------------------------------------------------------------------------------------------------")
 
 
         print(Color.ORANGE + "[+] Checking public Blacklists" + Color.END)
         print("--------------------------------------------------------------------------------------------------------")
-        print(Color.BLUE + "[+] Duggy Tuxy's list" + Color.END)
+        print(Color.BLUE + "[+] Duggy Tuxy's blacklist" + Color.END)
         Functions.duggyTuxy()
-        print("--------------------------------------------------------------------------------------------------------")
 
         print(Color.BLUE + "[+] IPsum's blacklists" + Color.END)
         Functions.ipsum()
-        print("--------------------------------------------------------------------------------------------------------")
 
         print(Color.BLUE + "[+] RedFlag domains's blacklists" + Color.END)
         print(Color.ORANGE + "[!] Redflag Domains are lists of recently registered probably malicious domain names in french TLDs" + Color.END)
         Functions.redflagDomains()
-        print("--------------------------------------------------------------------------------------------------------")
 
         print(Color.BLUE + "[+] C2 Tracker blacklist" + Color.END)
         print(Color.ORANGE + "[!] C2 Tracker identifies a list of IOCs linked to command and control servers (C2)." + Color.END)
