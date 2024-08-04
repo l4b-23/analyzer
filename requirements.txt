@@ -8,19 +8,19 @@
 
 OTXv2
 beautifulsoup4
-urllib
 urllib3
 ipinfo
 netlas
-csv
-json
-os
-socket
-re
 requests
-string
 datetime
-time
+#urllib
+#csv
+#json
+#os
+#socket
+#re
+#string
+#time
 
 
 # Pay attention to "netlas" depending on your operating system:

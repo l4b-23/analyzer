@@ -264,7 +264,7 @@ class Summary:
             Writes the report to a text file
             """
             # ------------------------------------------------------------------------------------------
-            with open('analyzer_reports/'+TODAY+'/'+ str(DOMAIN_NAME_TO_IP) + ".txt","a+") as fileReport:
+            with open(f'/home/{USERNAME}/Documents/analyzer_reports/'+TODAY+'/'+ str(DOMAIN_NAME_TO_IP) + ".txt","a+") as fileReport:
                 fileReport.write(" ------------------------------------------------------------------------------------------------------------------------------")
                 fileReport.write(f"\n Report for: {DOMAIN}, associated with IP address {DOMAIN_NAME_TO_IP}")
                 fileReport.write("\n ----------------------------------------------------------------------------------------------------------------------------")

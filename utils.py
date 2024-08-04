@@ -80,8 +80,8 @@ class Directory:
         Create a folder in the current directory to store results 
         """
         try:
-            if not os.path.exists('analyzer_reports/' + TODAY):
-                os.makedirs('analyzer_reports/' + TODAY)
+            if not os.path.exists(f'/home/{USERNAME}/Documents/analyzer_reports/' + TODAY):
+                os.makedirs(f'/home/{USERNAME}/Documents/analyzer_reports/' + TODAY)
 
         except Exception as err:
             print('Directory error: ', err)

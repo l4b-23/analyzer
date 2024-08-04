@@ -40,7 +40,14 @@ lemespaceclent.fr,08/04/2024,FALSE,benign
 ### Requirements:
 - beautifulsoup4, requests, OTXv2, PyPDF2, ipinfo, netlas, urllib3:
 ```bash
+sudo apt install python3.11-venv
+git clone https://github.com/l4b-23/analyzer.git
+cd analyzer/
+python3 -m venv venv_analyzer  # is in the .gitignore file
+source venv_analyzer/bin/activate
 pip3 install -r requirements.txt
+
+deactivate  # When you want to leave virtual environment
 ```
 
 ### Adjust utils.py:
